@@ -18,7 +18,7 @@ class CoroutineClient {
     private lateinit var client : SSLSocket
 
     fun startClient(){
-
+        connectToServer()
     }
 
     private fun connectToServer(){
@@ -46,15 +46,30 @@ class CoroutineClient {
     }
 
     fun read(){
-
+        runBlocking {
+            withContext(Dispatchers.IO){
+                client.inputStream.apply {
+                    val bytes = ByteArray(100)
+                    read(bytes)
+                }
+            }
+        }
     }
 
-    fun send(data : String){
-        
+    fun write(data : String){
+        runBlocking {
+            withContext(Dispatchers.IO){
+                client.outputStream.apply {
+                    write(data.toByteArray())
+                    flush()
+                    close()
+                }
+            }
+        }
     }
 
     fun disconnect(){
-        send("bye")
+        write("bye")
         client.close()
     }
 }
