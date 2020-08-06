@@ -1,6 +1,5 @@
-package com.fveye
+package com.fveye.network
 
-import android.util.Log
 import com.fveye.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
@@ -72,6 +71,9 @@ class CoroutineClient(private val binding: ActivityMainBinding) {
     }
 
     fun write(data: String) {
+        if(!client.isConnected){
+            connectToServer()
+        }
         runBlocking {
             client.outputStream.apply {
                 write(data.toByteArray())
@@ -87,10 +89,12 @@ class CoroutineClient(private val binding: ActivityMainBinding) {
     }
 
     fun disconnect() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                write("bye")
-                client.close()
+        if(client.isConnected && !client.isClosed){
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    write("bye")
+                    client.close()
+                }
             }
         }
     }

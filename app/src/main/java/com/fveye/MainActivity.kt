@@ -7,10 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fveye.databinding.ActivityMainBinding
+import com.fveye.network.CoroutineClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+//TODO QR Scanner 붙이기
 
 class MainActivity : AppCompatActivity() {
 
