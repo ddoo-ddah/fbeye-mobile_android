@@ -32,6 +32,11 @@ class MainActivity : AppCompatActivity() {
         else{
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
+
+        binding.sendButton.setOnClickListener{
+            client.write(binding.userInputEditText.text.toString())
+            client.testMethod(binding)
+        }
     }
 
     private fun checkPermissionIsGranted() = PERMISSIONS.all {

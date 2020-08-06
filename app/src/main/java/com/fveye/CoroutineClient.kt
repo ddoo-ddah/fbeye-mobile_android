@@ -1,8 +1,7 @@
 package com.fveye
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.fveye.databinding.ActivityMainBinding
+import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
@@ -16,6 +15,8 @@ class CoroutineClient {
     }
 
     private lateinit var client : SSLSocket
+
+    private val testBuffer = ByteArray(20)
 
     fun startClient(){
         connectToServer()
@@ -51,10 +52,16 @@ class CoroutineClient {
         runBlocking {
             withContext(Dispatchers.IO){
                 client.inputStream.apply {
-                    val bytes = ByteArray(100)
-                    read(bytes)
+                    read(testBuffer)
                 }
             }
+        }
+    }
+
+    fun testMethod(binding : ActivityMainBinding){
+        CoroutineScope(Dispatchers.Main).launch {
+            read()
+            binding.serverMessageDisplayTextView.text = String(testBuffer)
         }
     }
 
@@ -72,6 +79,10 @@ class CoroutineClient {
 
     fun disconnect(){
         write("bye")
-        client.close()
+        runBlocking {
+            withContext(Dispatchers.IO){
+                client.close()
+            }
+        }
     }
 }
