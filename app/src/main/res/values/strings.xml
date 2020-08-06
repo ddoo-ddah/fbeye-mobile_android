@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FVEye</string>
+    <string name="input_message">input message</string>
+    <string name="send">Send</string>
 </resources>
