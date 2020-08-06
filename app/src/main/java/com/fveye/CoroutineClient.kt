@@ -26,13 +26,9 @@ class CoroutineClient {
             withContext(Dispatchers.IO){
                 val trustManager = arrayOf(object : X509TrustManager {
                     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-
                     }
-
                     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-
                     }
-
                     override fun getAcceptedIssuers(): Array<X509Certificate> {
                         return arrayOf()
                     }
@@ -41,6 +37,12 @@ class CoroutineClient {
                     init(null, trustManager, null)
                 }
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
+                client.apply {
+                    addHandshakeCompletedListener {
+                        write("Client Hi")
+                        read()
+                    }
+                }.run { startHandshake() }
             }
         }
     }
