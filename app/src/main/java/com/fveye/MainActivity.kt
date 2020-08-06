@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     companion object{
-        private val PERMISSIONS = arrayOf(android.Manifest.permission.INTERNET, android.Manifest.permission.ACCESS_NETWORK_STATE)
+        private val PERMISSIONS = arrayOf(android.Manifest.permission.INTERNET, android.Manifest.permission.ACCESS_NETWORK_STATE,
+        android.Manifest.permission.CAMERA, android.Manifest.permission.READ_EXTERNAL_STORAGE
+                , android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         private const val REQUEST_CODE = 1
     }
 
