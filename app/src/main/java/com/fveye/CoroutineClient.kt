@@ -1,5 +1,6 @@
 package com.fveye
 
+import android.util.Log
 import com.fveye.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
@@ -7,29 +8,31 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
-class CoroutineClient {
+class CoroutineClient(private val binding: ActivityMainBinding) {
 
-    companion object{
+    companion object {
         const val IP = "192.168.200.144"
         const val PORT = 10101
     }
 
-    private lateinit var client : SSLSocket
+    private lateinit var client: SSLSocket
 
-    private val testBuffer = ByteArray(20)
+    private var testBuffer = ByteArray(20)
 
-    fun startClient(){
+    fun startClient() {
         connectToServer()
     }
 
-    private fun connectToServer(){
+    private fun connectToServer() {
         runBlocking {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 val trustManager = arrayOf(object : X509TrustManager {
                     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                     }
+
                     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                     }
+
                     override fun getAcceptedIssuers(): Array<X509Certificate> {
                         return arrayOf()
                     }
@@ -40,47 +43,53 @@ class CoroutineClient {
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
-                        write("Client Hi")
-                        read()
+//                        readData()
+                        testBuffer = ByteArray(20)
+                        client.inputStream.read(testBuffer)
+                        CoroutineScope(Dispatchers.Main).launch {binding.serverMessageDisplayTextView.text = String(testBuffer)}
                     }
                 }.run { startHandshake() }
             }
         }
     }
 
-    fun read(){
+    fun readData() {
         runBlocking {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 client.inputStream.apply {
+                    testBuffer = ByteArray(20)
                     read(testBuffer)
                 }
             }
+            changeDisplayedWord()
         }
     }
 
-    fun testMethod(binding : ActivityMainBinding){
-        CoroutineScope(Dispatchers.Main).launch {
-            read()
+    private suspend fun changeDisplayedWord() {
+        withContext(Dispatchers.Main) {
             binding.serverMessageDisplayTextView.text = String(testBuffer)
         }
     }
 
-    fun write(data : String){
+    fun write(data: String) {
         runBlocking {
-            withContext(Dispatchers.IO){
-                client.outputStream.apply {
-                    write(data.toByteArray())
-                    flush()
-                    close()
-                }
+            client.outputStream.apply {
+                write(data.toByteArray())
+                flush()
+                close()
             }
+            client.inputStream.apply {
+                testBuffer = ByteArray(20)
+                read(testBuffer)
+            }
+            changeDisplayedWord()
         }
     }
 
-    fun disconnect(){
-        write("bye")
+    fun disconnect() {
         runBlocking {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
+                write("bye")
                 client.close()
             }
         }

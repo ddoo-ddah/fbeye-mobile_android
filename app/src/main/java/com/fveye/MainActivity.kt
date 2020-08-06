@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fveye.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        client = CoroutineClient()
+        client = CoroutineClient(binding)
 
         if(checkPermissionIsGranted()){
             client.startClient()
@@ -34,8 +37,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.sendButton.setOnClickListener{
-            client.write(binding.userInputEditText.text.toString())
-            client.testMethod(binding)
+            CoroutineScope(Dispatchers.IO).launch{client.write(binding.userInputEditText.text.toString())}
         }
     }
 
