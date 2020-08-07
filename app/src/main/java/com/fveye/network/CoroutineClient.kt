@@ -1,7 +1,6 @@
 package com.fveye.network
 
 import android.widget.TextView
-import com.fveye.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext

@@ -23,12 +23,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/server_message_display_textView" />
 
+    <androidx.camera.view.PreviewView
+        android:id="@+id/preview"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_input_editText"
+        />
+
     <Button
         android:id="@+id/send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/send"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/user_input_editText" />
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <Button
+        android:id="@+id/snapshot_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/send_button"
+        android:text="snapshot"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

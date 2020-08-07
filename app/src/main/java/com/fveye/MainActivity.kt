@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fveye.network.CoroutineClient
+import com.fveye.qr.QrScanner
 import com.fveye.qr.Snapshotor
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.snapshot_test_layout.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,18 +26,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var client: CoroutineClient
-    private lateinit var outputDirectory: File
     private lateinit var snapshotor: Snapshotor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        snapshotor = Snapshotor(this, viewFinder, this, getOutputDirectory())
+        var outputDir = getOutputDirectory()
+
+        snapshotor = Snapshotor(this, preview, this, outputDir)
         client = CoroutineClient(server_message_display_textView)
+        var qrScanner = QrScanner(this, outputDir)
 
         if (checkPermissionIsGranted()) {
             client.startClient()
+            snapshotor.startCamera()
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
@@ -45,7 +48,12 @@ class MainActivity : AppCompatActivity() {
         send_button.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch { client.write(user_input_editText.text.toString()) }
         }
-
+        snapshot_btn.setOnClickListener {
+            Thread {
+                snapshotor.takePhoto()
+                qrScanner.detect()
+            }.start()
+        }
     }
 
     private fun checkPermissionIsGranted() = PERMISSIONS.all {
