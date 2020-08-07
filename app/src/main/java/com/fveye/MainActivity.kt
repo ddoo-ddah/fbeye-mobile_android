@@ -6,9 +6,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.fveye.databinding.ActivityMainBinding
 import com.fveye.network.CoroutineClient
 import com.fveye.qr.Snapshotor
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.snapshot_test_layout.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,18 +25,16 @@ class MainActivity : AppCompatActivity() {
         private const val REQUEST_CODE = 1
     }
 
-    private lateinit var binding: ActivityMainBinding
     private lateinit var client: CoroutineClient
     private lateinit var outputDirectory: File
     private lateinit var snapshotor: Snapshotor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
         snapshotor = Snapshotor(this, viewFinder, this, getOutputDirectory())
-        client = CoroutineClient(binding)
+        client = CoroutineClient(server_message_display_textView)
 
         if (checkPermissionIsGranted()) {
             client.startClient()
@@ -44,9 +42,10 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
 
-        binding.sendButton.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch { client.write(binding.userInputEditText.text.toString()) }
+        send_button.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch { client.write(user_input_editText.text.toString()) }
         }
+
     }
 
     private fun checkPermissionIsGranted() = PERMISSIONS.all {

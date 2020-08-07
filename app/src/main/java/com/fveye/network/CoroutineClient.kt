@@ -1,5 +1,6 @@
 package com.fveye.network
 
+import android.widget.TextView
 import com.fveye.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
@@ -7,7 +8,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
-class CoroutineClient(private val binding: ActivityMainBinding) {
+class CoroutineClient(private val testView : TextView) {
 
     companion object {
         const val IP = "192.168.200.144"
@@ -45,7 +46,7 @@ class CoroutineClient(private val binding: ActivityMainBinding) {
 //                        readData()
                         testBuffer = ByteArray(20)
                         client.inputStream.read(testBuffer)
-                        CoroutineScope(Dispatchers.Main).launch {binding.serverMessageDisplayTextView.text = String(testBuffer)}
+                        CoroutineScope(Dispatchers.Main).launch {testView.text = String(testBuffer)}
                     }
                 }.run { startHandshake() }
             }
@@ -66,7 +67,7 @@ class CoroutineClient(private val binding: ActivityMainBinding) {
 
     private suspend fun changeDisplayedWord() {
         withContext(Dispatchers.Main) {
-            binding.serverMessageDisplayTextView.text = String(testBuffer)
+            testView.text = String(testBuffer)
         }
     }
 
