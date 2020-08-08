@@ -7,7 +7,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
-class CoroutineClient(private val testView : TextView) {
+class CoroutineClient {
 
     companion object {
         const val IP = "192.168.200.144"
@@ -49,7 +49,6 @@ class CoroutineClient(private val testView : TextView) {
                     addHandshakeCompletedListener {
                         inputBuffer = ByteArray(20)
                         client.inputStream.read(inputBuffer)
-                        CoroutineScope(Dispatchers.Main).launch {testView.text = String(inputBuffer)}
                     }
                 }.run { startHandshake() }
             }
@@ -65,15 +64,9 @@ class CoroutineClient(private val testView : TextView) {
                     close()
                 }
             }
-            changeDisplayedWord()
         }
     }
 
-    private suspend fun changeDisplayedWord() {
-        withContext(Dispatchers.Main) {
-            testView.text = String(inputBuffer)
-        }
-    }
 
     fun write(data: String) {
         if(!client.isConnected){
@@ -91,7 +84,6 @@ class CoroutineClient(private val testView : TextView) {
                 identifyMessage(inputBuffer)
                 close()
             }
-            changeDisplayedWord()
         }
     }
 
