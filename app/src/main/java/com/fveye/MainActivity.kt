@@ -27,12 +27,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var client: CoroutineClient
     private lateinit var snapshotor: Snapshotor
+    private lateinit var outputDir : File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var outputDir = getOutputDirectory()
+        outputDir = getOutputDirectory()
 
         snapshotor = Snapshotor(this, preview, this, outputDir)
         client = CoroutineClient(server_message_display_textView)
@@ -83,6 +84,12 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         client.disconnect()
+        val photoFile = File(
+                outputDir,
+                "test"+".jpg")
+        if(photoFile.exists()){
+            photoFile.delete()
+        }
     }
 
 }

@@ -18,6 +18,8 @@ class Snapshotor(private val context: Context, private val preview: PreviewView,
                  private val lifecycleOwner: LifecycleOwner, private val outputDirectory: File) {
 
 
+    //TODO 너무 불안정함
+    
     private lateinit var imageCapture: ImageCapture
 
     fun startCamera() {
