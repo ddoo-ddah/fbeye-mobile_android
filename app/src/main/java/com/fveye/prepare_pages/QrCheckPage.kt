@@ -21,11 +21,9 @@ import java.io.File
 
 class QrCheckPage : AppCompatActivity() {
 
-    private lateinit var client : CoroutineClient
     private lateinit var snapshotor: Snapshotor
-    private lateinit var outputDir : File
+    private lateinit var outputDir: File
     private lateinit var qrScanner: QrScanner
-    //TODO client를 싱글턴으로 만들어 버릴까
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,18 +35,26 @@ class QrCheckPage : AppCompatActivity() {
         snapshotor = Snapshotor(this, qr_check_preview, this, outputDir).apply {
             startCamera()
         }
-        client = CoroutineClient().apply {
-            startClient()
-        }
 
         //찍어서 보낸 후 반응을 받은 다음이 문제네
         qr_check_snapshot_button.setOnClickListener {
             snapshotor.takePhoto()
             val result = qrScanner.detect()
             //Send result to Server
+            CoroutineClient.getInstance().write(result!!.displayValue.toString())
         }
-//        qr_check_snapshot_button.visibility = View.INVISIBLE
-//        qr_check_snapshot_button.isClickable = false
+    }
+
+    //콜백으로 넘기던가 해야될 듯?
+    private fun changeButton() {
+        qr_check_snapshot_button.apply {
+            visibility = View.INVISIBLE
+            isClickable = false
+        }
+        qr_check_next_button.apply {
+            visibility = View.VISIBLE
+            isClickable = true
+        }
     }
 
     private fun getOutputDirectory(): File {

@@ -1,17 +1,27 @@
 package com.fveye.network
 
-import android.widget.TextView
 import kotlinx.coroutines.*
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
-class CoroutineClient {
+class CoroutineClient private constructor(){
 
     companion object {
-        const val IP = "192.168.200.144"
-        const val PORT = 10101
+        private var instance : CoroutineClient? = null
+
+        fun getInstance() : CoroutineClient =
+                instance ?: synchronized(this) {
+                    instance ?: CoroutineClient().also {
+                        instance = it
+                    }
+                }
+    }
+
+    object Info {
+        val IP = "192.168.200.144"
+        val PORT = 10101
         val eyeTrackingIdentifier = "EYE"
         val qrIdentifier = "AUT"
         val errorIdentifier = "ERR"
@@ -44,7 +54,7 @@ class CoroutineClient {
                 val sslContext = SSLContext.getInstance("TLSv1.3").apply {
                     init(null, trustManager, null)
                 }
-                client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
+                client = sslContext.socketFactory.createSocket(Info.IP, Info.PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
                         inputBuffer = ByteArray(20)
@@ -91,10 +101,10 @@ class CoroutineClient {
         val identifier = ByteArray(3)
         bytes.copyInto(identifier,0,0,2)
         when(String(identifier)){
-            pcResponseIdentifier -> doSomeThingWithCase()
-            qrIdentifier -> doSomeThingWithCase()
-            errorIdentifier -> doSomeThingWithCase()
-            testIdentifier -> doSomeThingWithCase()
+            Info.pcResponseIdentifier -> doSomeThingWithCase()
+            Info.qrIdentifier -> doSomeThingWithCase()
+            Info.errorIdentifier -> doSomeThingWithCase()
+            Info.testIdentifier -> doSomeThingWithCase()
         }
     }
 
