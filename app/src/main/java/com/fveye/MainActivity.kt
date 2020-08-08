@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         outputDir = getOutputDirectory()
 
         snapshotor = Snapshotor(this, preview, this, outputDir)
-        client = CoroutineClient(server_message_display_textView)
+        client = CoroutineClient()
         var qrScanner = QrScanner(this, outputDir)
 
         if (checkPermissionIsGranted()) {
