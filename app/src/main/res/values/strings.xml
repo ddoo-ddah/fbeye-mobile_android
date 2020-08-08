@@ -3,5 +3,6 @@
     <string name="input_message">input message</string>
     <string name="send">Send</string>
     <string name="qr_check_explanation_text">Please Take a photo include qrCode</string>
-    <string name="snapshot">snapshot</string>
+    <string name="snapshot">Snapshot</string>
+    <string name="next">Next</string>
 </resources>

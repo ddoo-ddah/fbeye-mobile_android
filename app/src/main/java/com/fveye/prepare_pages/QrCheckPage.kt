@@ -1,6 +1,7 @@
 package com.fveye.prepare_pages
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
 import com.fveye.network.CoroutineClient
@@ -40,11 +41,14 @@ class QrCheckPage : AppCompatActivity() {
             startClient()
         }
 
+        //찍어서 보낸 후 반응을 받은 다음이 문제네
         qr_check_snapshot_button.setOnClickListener {
             snapshotor.takePhoto()
             val result = qrScanner.detect()
             //Send result to Server
         }
+//        qr_check_snapshot_button.visibility = View.INVISIBLE
+//        qr_check_snapshot_button.isClickable = false
     }
 
     private fun getOutputDirectory(): File {

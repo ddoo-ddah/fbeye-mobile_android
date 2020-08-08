@@ -41,4 +41,19 @@
         app:layout_constraintVertical_weight="1"
         />
 
+    <Button
+        android:id="@+id/qr_check_next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/next"
+        android:background="#00000000"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        app:layout_constraintStart_toEndOf="@id/qr_check_explanation"
+        app:layout_constraintEnd_toEndOf="@id/qr_check_preview"
+        app:layout_constraintBottom_toBottomOf="@id/qr_check_preview"
+        app:layout_constraintVertical_weight="1"
+        android:visibility="invisible"
+        android:clickable="false"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

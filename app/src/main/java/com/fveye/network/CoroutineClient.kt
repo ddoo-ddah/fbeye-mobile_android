@@ -98,6 +98,13 @@ class CoroutineClient {
         }
     }
 
+    /**
+     * qr코드의 인식 값을 보낸 후 연동 ok 를 받아서 다음 화면으로 가야하는 걸 콜백으로?
+     * 성공 시 다음 화면
+     * 실패 시 재도전 권유 --> 이것도 콜백? 너무 더러워지는데
+     * RunBlocking 을 사용해서 결과를 boolean 으로 반환
+     * 버튼을 하나더 만들어서 true 일시만 활성화
+     */
     private fun doSomeThingWithCase(){}
 
     fun disconnect() {
