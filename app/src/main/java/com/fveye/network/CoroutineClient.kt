@@ -12,11 +12,16 @@ class CoroutineClient(private val testView : TextView) {
     companion object {
         const val IP = "192.168.200.144"
         const val PORT = 10101
+        val eyeTrackingIdentifier = "EYE"
+        val qrIdentifier = "AUT"
+        val errorIdentifier = "ERR"
+        val testIdentifier = "TES"
+        val pcResponseIdentifier = "RES"
     }
 
     private lateinit var client: SSLSocket
 
-    private var testBuffer = ByteArray(20)
+    private var inputBuffer = ByteArray(20)
 
     fun startClient() {
         connectToServer()
@@ -42,10 +47,9 @@ class CoroutineClient(private val testView : TextView) {
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
-//                        readData()
-                        testBuffer = ByteArray(20)
-                        client.inputStream.read(testBuffer)
-                        CoroutineScope(Dispatchers.Main).launch {testView.text = String(testBuffer)}
+                        inputBuffer = ByteArray(20)
+                        client.inputStream.read(inputBuffer)
+                        CoroutineScope(Dispatchers.Main).launch {testView.text = String(inputBuffer)}
                     }
                 }.run { startHandshake() }
             }
@@ -56,8 +60,9 @@ class CoroutineClient(private val testView : TextView) {
         runBlocking {
             withContext(Dispatchers.IO) {
                 client.inputStream.apply {
-                    testBuffer = ByteArray(20)
-                    read(testBuffer)
+                    inputBuffer = ByteArray(20)
+                    read(inputBuffer)
+                    close()
                 }
             }
             changeDisplayedWord()
@@ -66,7 +71,7 @@ class CoroutineClient(private val testView : TextView) {
 
     private suspend fun changeDisplayedWord() {
         withContext(Dispatchers.Main) {
-            testView.text = String(testBuffer)
+            testView.text = String(inputBuffer)
         }
     }
 
@@ -81,12 +86,27 @@ class CoroutineClient(private val testView : TextView) {
                 close()
             }
             client.inputStream.apply {
-                testBuffer = ByteArray(20)
-                read(testBuffer)
+                inputBuffer = ByteArray(20)
+                read(inputBuffer)
+                identifyMessage(inputBuffer)
+                close()
             }
             changeDisplayedWord()
         }
     }
+
+    private fun identifyMessage(bytes : ByteArray){
+        val identifier = ByteArray(3)
+        bytes.copyInto(identifier,0,0,2)
+        when(String(identifier)){
+            pcResponseIdentifier -> doSomeThingWithCase()
+            qrIdentifier -> doSomeThingWithCase()
+            errorIdentifier -> doSomeThingWithCase()
+            testIdentifier -> doSomeThingWithCase()
+        }
+    }
+
+    private fun doSomeThingWithCase(){}
 
     fun disconnect() {
         if(client.isConnected && !client.isClosed){

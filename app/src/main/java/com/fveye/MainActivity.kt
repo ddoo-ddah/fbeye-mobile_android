@@ -16,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-//TODO QR Scanner 붙이기
 
 class MainActivity : AppCompatActivity() {
 
@@ -96,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         client.disconnect()
         val photoFile = File(
                 outputDir,
-                "test"+".jpg")
+                "qrPhoto"+".jpg")
         if(photoFile.exists()){
             photoFile.delete()
         }
