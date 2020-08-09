@@ -39,7 +39,9 @@ import java.io.File
 
 /**
  * 우선 계속 스크린샷 찍어보자 -- 완료
- * 주기적으로 qr 검사를 해보자
+ * 주기적으로 qr 검사를 해보자 -- 완료
+ * 자동으로 화면이 넘어가게끔 만들어 보자
+ *      a. 일단 화면을 넣어두자
  */
 
 class MainActivity : AppCompatActivity() {

@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".prepare_pages.QrCheckPage"></activity>
+        <activity android:name=".prepare_pages.FaceChecker"></activity>
     </application>
 
 </manifest>
