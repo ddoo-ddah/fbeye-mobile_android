@@ -32,17 +32,13 @@ class CoroutineClient private constructor() {
     private var inputBuffer = ByteArray(20)
 
     private lateinit var client: SSLSocket
-    private lateinit var changeButtonCallBack: Runnable
 
 
     fun startClient() {
         connectToServer()
     }
-
-    fun setCallBack(run: Runnable) {
-        this.changeButtonCallBack = run
-    }
-
+    
+    //Thread도 가능
     private fun connectToServer() {
         runBlocking {
             withContext(Dispatchers.IO) {
@@ -57,7 +53,7 @@ class CoroutineClient private constructor() {
                         return arrayOf()
                     }
                 })
-                val sslContext = SSLContext.getInstance("TLSv1.3").apply {
+                val sslContext = SSLContext.getInstance("TLSv1.2").apply {
                     init(null, trustManager, null)
                 }
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
@@ -66,7 +62,7 @@ class CoroutineClient private constructor() {
                         inputBuffer = ByteArray(20)
                         client.inputStream.read(inputBuffer)
                     }
-                }.run { startHandshake() }
+                }.run { startHandshake()}
             }
         }
     }
@@ -105,7 +101,7 @@ class CoroutineClient private constructor() {
 
     private fun identifyMessage(bytes: ByteArray) {
         val identifier = ByteArray(3)
-        bytes.copyInto(identifier, 0, 0, 2)
+        bytes.copyInto(identifier, 0, 0, 3)
         when (String(identifier)) {
             pcResponseIdentifier -> doSomeThingWithCase(bytes)
             qrIdentifier -> doSomeThingWithCase(bytes)
@@ -124,8 +120,10 @@ class CoroutineClient private constructor() {
     private fun doSomeThingWithCase(bytes : ByteArray) {}
 
     private fun qrTask(bytes: ByteArray){
-        if(String(bytes) == "OK"){
-            changeButtonCallBack.run()
+        val content = ByteArray(20)
+        bytes.copyInto(content, 0, 3, bytes.size)
+        if(String(content) == "OK"){
+            //자도오오오오오ㅗㅗㅗㅗㅗㅗㅗㅇ옹화
         }
     }
 
