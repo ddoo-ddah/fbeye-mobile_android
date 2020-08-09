@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outputDir: File
     private lateinit var backGroundThread: HandlerThread
     private lateinit var backGroundHandler: Handler
+    private lateinit var qrScanner : QrScanner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
         snapshotor = Snapshotor(this, preview, this, outputDir)
 
-        var qrScanner = QrScanner(this, outputDir)
+        qrScanner = QrScanner(this, outputDir)
 
         if (checkPermissionIsGranted()) {
             CoroutineClient.getInstance().startClient()
@@ -78,6 +79,7 @@ class MainActivity : AppCompatActivity() {
 
         snapshot_btn.setOnClickListener {
             snapshotWithDelay()
+            detectWithDelay()
         }
     }
 
@@ -86,8 +88,17 @@ class MainActivity : AppCompatActivity() {
         snapshotWithDelay()
     }
 
+    private fun detect(){
+        qrScanner.detect()
+        detectWithDelay()
+    }
+
+    private fun detectWithDelay(){
+        backGroundHandler.postDelayed(this::detect, 10000)
+    }
+
     private fun snapshotWithDelay() {
-        backGroundHandler.postDelayed(this::snapshot, 2000)
+        backGroundHandler.postDelayed(this::snapshot, 10000)
     }
 
     private fun startBackgroundHandler() {
