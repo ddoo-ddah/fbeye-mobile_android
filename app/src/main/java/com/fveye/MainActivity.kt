@@ -38,7 +38,8 @@ import java.io.File
  */
 
 /**
- * 우선 계속 스크린샷 찍으면서 qr 일정주기로 판단하는 거부터 해보자
+ * 우선 계속 스크린샷 찍어보자 -- 완료
+ * 주기적으로 qr 검사를 해보자
  */
 
 class MainActivity : AppCompatActivity() {

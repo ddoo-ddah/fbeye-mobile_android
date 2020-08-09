@@ -3,6 +3,7 @@ package com.fveye.qr
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.fveye.network.CoroutineClient
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
@@ -18,15 +19,14 @@ class QrScanner(val context: Context, outputDirectory : File) {
             outputDirectory,
             "qrPhoto"+".jpg")
 
-    fun detect() : Barcode?{
+    fun detect() {
 
         val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
         val frame = Frame.Builder().setBitmap(bitmap).build()
         val barcode = barcodeDetector.detect(frame)
         if(barcode.size() > 0){
             Log.d("Detect Success", barcode.valueAt(0).displayValue)
-            return barcode.valueAt(0)
+            CoroutineClient.getInstance().write(barcode.valueAt(0).displayValue.toString())
         }
-        return null
     }
 }
