@@ -16,7 +16,7 @@ class QrScanner(val context: Context, outputDirectory : File) {
             .build()
     val photoFile = File(
             outputDirectory,
-            "test"+".jpg")
+            "qrPhoto"+".jpg")
 
     fun detect() : Barcode?{
 

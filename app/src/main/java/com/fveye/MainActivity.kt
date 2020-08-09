@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         private const val REQUEST_CODE = 1
     }
 
-    private lateinit var client: CoroutineClient
     private lateinit var snapshotor: Snapshotor
     private lateinit var outputDir: File
     private lateinit var backGroundThread: HandlerThread
@@ -62,18 +61,18 @@ class MainActivity : AppCompatActivity() {
         outputDir = getOutputDirectory()
 
         snapshotor = Snapshotor(this, preview, this, outputDir)
-        client = CoroutineClient(server_message_display_textView)
+
         var qrScanner = QrScanner(this, outputDir)
 
         if (checkPermissionIsGranted()) {
-            client.startClient()
+            CoroutineClient.getInstance().startClient()
             snapshotor.startCamera()
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
 
         send_button.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch { client.write(user_input_editText.text.toString()) }
+            CoroutineScope(Dispatchers.IO).launch { CoroutineClient.getInstance().write(user_input_editText.text.toString()) }
         }
 
         snapshot_btn.setOnClickListener {
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE) {
             if (checkPermissionIsGranted()) {
-                client.startClient()
+                CoroutineClient.getInstance().startClient()
                 snapshotor.startCamera()
             } else {
                 val alertBuilder = AlertDialog.Builder(this)
@@ -137,11 +136,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        client.disconnect()
+        CoroutineClient.getInstance().disconnect()
         val photoFile = File(
                 outputDir,
-                "test" + ".jpg")
-        if (photoFile.exists()) {
+                "qrPhoto"+".jpg")
+        if(photoFile.exists()){
             photoFile.delete()
         }
     }

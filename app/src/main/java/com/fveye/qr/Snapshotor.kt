@@ -55,7 +55,7 @@ class Snapshotor(private val context: Context, private val preview: PreviewView,
 
         val photoFile = File(
                 outputDirectory,
-                "test" + ".jpg")
+                "qrPhoto" + ".jpg")
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
