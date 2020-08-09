@@ -1,5 +1,6 @@
 package com.fveye.prepare_pages
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -35,13 +36,17 @@ class QrCheckPage : AppCompatActivity() {
         snapshotor = Snapshotor(this, qr_check_preview, this, outputDir).apply {
             startCamera()
         }
-
+        CoroutineClient.getInstance().setCallBack(this::changeButton)
         //찍어서 보낸 후 반응을 받은 다음이 문제네
         qr_check_snapshot_button.setOnClickListener {
             snapshotor.takePhoto()
             val result = qrScanner.detect()
             //Send result to Server
             CoroutineClient.getInstance().write(result!!.displayValue.toString())
+        }
+        qr_check_next_button.setOnClickListener {
+            //Move next page
+            val intent = Intent()
         }
     }
 

@@ -1,17 +1,19 @@
 package com.fveye.network
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
-class CoroutineClient private constructor(){
+class CoroutineClient private constructor() {
 
     companion object {
-        private var instance : CoroutineClient? = null
+        private var instance: CoroutineClient? = null
 
-        fun getInstance() : CoroutineClient =
+        fun getInstance(): CoroutineClient =
                 instance ?: synchronized(this) {
                     instance ?: CoroutineClient().also {
                         instance = it
@@ -19,22 +21,26 @@ class CoroutineClient private constructor(){
                 }
     }
 
-    object Info {
-        val IP = "192.168.200.144"
-        val PORT = 10101
-        val eyeTrackingIdentifier = "EYE"
-        val qrIdentifier = "AUT"
-        val errorIdentifier = "ERR"
-        val testIdentifier = "TES"
-        val pcResponseIdentifier = "RES"
-    }
+
+    private val IP = "192.168.200.144"
+    private val PORT = 10101
+    private val eyeTrackingIdentifier = "EYE"
+    private val qrIdentifier = "AUT"
+    private val errorIdentifier = "ERR"
+    private val testIdentifier = "TES"
+    private val pcResponseIdentifier = "RES"
+    private var inputBuffer = ByteArray(20)
 
     private lateinit var client: SSLSocket
+    private lateinit var changeButtonCallBack: Runnable
 
-    private var inputBuffer = ByteArray(20)
 
     fun startClient() {
         connectToServer()
+    }
+
+    fun setCallBack(run: Runnable) {
+        this.changeButtonCallBack = run
     }
 
     private fun connectToServer() {
@@ -54,7 +60,7 @@ class CoroutineClient private constructor(){
                 val sslContext = SSLContext.getInstance("TLSv1.3").apply {
                     init(null, trustManager, null)
                 }
-                client = sslContext.socketFactory.createSocket(Info.IP, Info.PORT) as SSLSocket
+                client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
                         inputBuffer = ByteArray(20)
@@ -79,7 +85,7 @@ class CoroutineClient private constructor(){
 
 
     fun write(data: String) {
-        if(!client.isConnected){
+        if (!client.isConnected) {
             connectToServer()
         }
         runBlocking {
@@ -97,14 +103,14 @@ class CoroutineClient private constructor(){
         }
     }
 
-    private fun identifyMessage(bytes : ByteArray){
+    private fun identifyMessage(bytes: ByteArray) {
         val identifier = ByteArray(3)
-        bytes.copyInto(identifier,0,0,2)
-        when(String(identifier)){
-            Info.pcResponseIdentifier -> doSomeThingWithCase()
-            Info.qrIdentifier -> doSomeThingWithCase()
-            Info.errorIdentifier -> doSomeThingWithCase()
-            Info.testIdentifier -> doSomeThingWithCase()
+        bytes.copyInto(identifier, 0, 0, 2)
+        when (String(identifier)) {
+            pcResponseIdentifier -> doSomeThingWithCase(bytes)
+            qrIdentifier -> doSomeThingWithCase(bytes)
+            errorIdentifier -> doSomeThingWithCase(bytes)
+            testIdentifier -> doSomeThingWithCase(bytes)
         }
     }
 
@@ -115,10 +121,16 @@ class CoroutineClient private constructor(){
      * RunBlocking 을 사용해서 결과를 boolean 으로 반환
      * 버튼을 하나더 만들어서 true 일시만 활성화
      */
-    private fun doSomeThingWithCase(){}
+    private fun doSomeThingWithCase(bytes : ByteArray) {}
+
+    private fun qrTask(bytes: ByteArray){
+        if(String(bytes) == "OK"){
+            changeButtonCallBack.run()
+        }
+    }
 
     fun disconnect() {
-        if(client.isConnected && !client.isClosed){
+        if (client.isConnected && !client.isClosed) {
             runBlocking {
                 withContext(Dispatchers.IO) {
                     write("bye")

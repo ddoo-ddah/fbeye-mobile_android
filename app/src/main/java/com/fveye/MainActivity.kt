@@ -38,6 +38,8 @@ class MainActivity : AppCompatActivity() {
 
         var qrScanner = QrScanner(this, outputDir)
 
+
+
         if (checkPermissionIsGranted()) {
             CoroutineClient.getInstance().startClient()
             snapshotor.startCamera()
@@ -54,6 +56,8 @@ class MainActivity : AppCompatActivity() {
                 qrScanner.detect()
             }.start()
         }
+
+
     }
 
     private fun checkPermissionIsGranted() = PERMISSIONS.all {
