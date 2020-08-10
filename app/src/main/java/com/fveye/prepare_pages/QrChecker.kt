@@ -3,8 +3,8 @@ package com.fveye.prepare_pages
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
-import com.fveye.qr.QrScanner
-import com.fveye.qr.Snapshotor
+import com.fveye.feature.QrScanner
+import com.fveye.feature.Snapshotor
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import java.io.File
 

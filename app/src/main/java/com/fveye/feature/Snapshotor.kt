@@ -1,4 +1,4 @@
-package com.fveye.qr
+package com.fveye.feature
 
 import android.content.Context
 import android.net.Uri
@@ -16,7 +16,6 @@ import java.io.File
 
 class Snapshotor(private val context: Context, private val preview: PreviewView,
                  private val lifecycleOwner: LifecycleOwner, private val outputDirectory: File) {
-
 
     //TODO 너무 불안정함
     

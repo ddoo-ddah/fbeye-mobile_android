@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -13,8 +12,8 @@ import androidx.core.content.ContextCompat
 import com.fveye.network.CoroutineClient
 import com.fveye.prepare_pages.FaceChecker
 import com.fveye.prepare_pages.QrChecker
-import com.fveye.qr.QrScanner
-import com.fveye.qr.Snapshotor
+import com.fveye.feature.QrScanner
+import com.fveye.feature.Snapshotor
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,8 +86,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         snapshot_btn.setOnClickListener {
-            snapshotWithDelay()
-            detectWithDelay()
+//            snapshotWithDelay()
+//            detectWithDelay()
+            snapshotor.takePhoto()
+            qrScanner.detect()
         }
     }
 

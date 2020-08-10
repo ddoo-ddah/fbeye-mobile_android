@@ -23,7 +23,7 @@ class CoroutineClient private constructor() {
                 }
     }
 
-    private val IP = "192.168.200.144"
+    private val IP = "192.168.200.190"
     private val PORT = 10101
     private val eyeTrackingIdentifier = "EYE"
     private val qrIdentifier = "AUT"
