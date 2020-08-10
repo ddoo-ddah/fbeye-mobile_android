@@ -19,7 +19,7 @@ import java.io.File
 
 
 
-class QrCheckPage : AppCompatActivity() {
+class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
     private lateinit var outputDir: File

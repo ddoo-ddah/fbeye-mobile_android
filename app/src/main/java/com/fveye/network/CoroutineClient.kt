@@ -1,9 +1,11 @@
 package com.fveye.network
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.security.cert.X509Certificate
+import java.util.function.Consumer
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
@@ -32,12 +34,12 @@ class CoroutineClient private constructor() {
     private var inputBuffer = ByteArray(20)
 
     private lateinit var client: SSLSocket
-
+    private lateinit var moveNexPage: Consumer<String>
 
     fun startClient() {
         connectToServer()
     }
-    
+
     //Thread도 가능
     private fun connectToServer() {
         runBlocking {
@@ -62,9 +64,13 @@ class CoroutineClient private constructor() {
                         inputBuffer = ByteArray(20)
                         client.inputStream.read(inputBuffer)
                     }
-                }.run { startHandshake()}
+                }.run { startHandshake() }
             }
         }
+    }
+
+    fun setMoveNext(run: Consumer<String>) {
+        this.moveNexPage = run
     }
 
     fun readData() {
@@ -104,27 +110,16 @@ class CoroutineClient private constructor() {
         bytes.copyInto(identifier, 0, 0, 3)
         when (String(identifier)) {
             pcResponseIdentifier -> doSomeThingWithCase(bytes)
-            qrIdentifier -> doSomeThingWithCase(bytes)
+            qrIdentifier -> qrTask(identifier)
             errorIdentifier -> doSomeThingWithCase(bytes)
             testIdentifier -> doSomeThingWithCase(bytes)
         }
     }
 
-    /**
-     * qr코드의 인식 값을 보낸 후 연동 ok 를 받아서 다음 화면으로 가야하는 걸 콜백으로?
-     * 성공 시 다음 화면
-     * 실패 시 재도전 권유 --> 이것도 콜백? 너무 더러워지는데
-     * RunBlocking 을 사용해서 결과를 boolean 으로 반환
-     * 버튼을 하나더 만들어서 true 일시만 활성화
-     */
-    private fun doSomeThingWithCase(bytes : ByteArray) {}
+    private fun doSomeThingWithCase(bytes: ByteArray) {}
 
-    private fun qrTask(bytes: ByteArray){
-        val content = ByteArray(20)
-        bytes.copyInto(content, 0, 3, bytes.size)
-        if(String(content) == "OK"){
-            //자도오오오오오ㅗㅗㅗㅗㅗㅗㅗㅇ옹화
-        }
+    private fun qrTask(bytes: ByteArray) {
+        moveNexPage.accept(String(bytes))
     }
 
     fun disconnect() {

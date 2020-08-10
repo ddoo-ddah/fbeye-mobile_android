@@ -1,15 +1,18 @@
 package com.fveye
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fveye.network.CoroutineClient
+import com.fveye.prepare_pages.FaceChecker
+import com.fveye.prepare_pages.QrChecker
 import com.fveye.qr.QrScanner
 import com.fveye.qr.Snapshotor
 import kotlinx.android.synthetic.main.activity_main.*
@@ -58,9 +61,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var backGroundHandler: Handler
     private lateinit var qrScanner : QrScanner
 
+    private var classSet = mutableMapOf(Pair("AUT", QrChecker::class.java), Pair("ho", FaceChecker::class.java))
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        CoroutineClient.getInstance().setMoveNext(this::moveNext)
 
         outputDir = getOutputDirectory()
 
@@ -83,6 +90,11 @@ class MainActivity : AppCompatActivity() {
             snapshotWithDelay()
             detectWithDelay()
         }
+    }
+
+    private fun moveNext(nextClass : String){
+        val intent = Intent(this, classSet.get(nextClass))
+        startActivity(intent)
     }
 
     private fun snapshot() {
