@@ -2,6 +2,7 @@ package com.fveye.prepare_pages
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.QrScanner
 import com.fveye.feature.Snapshotor
@@ -18,32 +19,16 @@ import java.io.File
  */
 
 
-
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
-    private lateinit var outputDir: File
-    private lateinit var qrScanner: QrScanner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
 
-        outputDir = getOutputDirectory()
-
-        qrScanner = QrScanner(this, outputDir)
-        snapshotor = Snapshotor(this, qr_check_preview, this, outputDir).apply {
+        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner).apply {
             startCamera()
         }
-
-
-    }
-
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else filesDir
     }
 }

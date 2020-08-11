@@ -9,11 +9,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.prepare_pages.FaceChecker
 import com.fveye.prepare_pages.QrChecker
-import com.fveye.feature.QrScanner
-import com.fveye.feature.Snapshotor
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,13 +39,6 @@ import java.io.File
  * EyeTracking 은 벡터 두개로 넘어 올거임
  */
 
-/**
- * 우선 계속 스크린샷 찍어보자 -- 완료
- * 주기적으로 qr 검사를 해보자 -- 완료
- * 자동으로 화면이 넘어가게끔 만들어 보자
- *      a. 일단 화면을 넣어두자
- */
-
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -55,10 +48,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var snapshotor: Snapshotor
-    private lateinit var outputDir: File
     private lateinit var backGroundThread: HandlerThread
     private lateinit var backGroundHandler: Handler
-    private lateinit var qrScanner : QrScanner
 
     private var classSet = mutableMapOf(Pair("AUT", QrChecker::class.java), Pair("ho", FaceChecker::class.java))
 
@@ -66,17 +57,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        startBackgroundHandler()
         CoroutineClient.getInstance().setMoveNext(this::moveNext)
 
-        outputDir = getOutputDirectory()
-
-        snapshotor = Snapshotor(this, preview, this, outputDir)
-
-        qrScanner = QrScanner(this, outputDir)
+        snapshotor = Snapshotor(this, preview, this as LifecycleOwner)
 
         if (checkPermissionIsGranted()) {
             CoroutineClient.getInstance().startClient()
-            snapshotor.startCamera()
+            backGroundHandler.post { snapshotor.startCamera() }
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
@@ -86,34 +74,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         snapshot_btn.setOnClickListener {
-//            snapshotWithDelay()
-//            detectWithDelay()
-            snapshotor.takePhoto()
-            qrScanner.detect()
         }
     }
 
-    private fun moveNext(nextClass : String){
-        val intent = Intent(this, classSet.get(nextClass))
+    private fun moveNext(nextClass: String) {
+        val intent = Intent(this, classSet[nextClass])
         startActivity(intent)
-    }
-
-    private fun snapshot() {
-        snapshotor.takePhoto()
-        snapshotWithDelay()
-    }
-
-    private fun detect(){
-        qrScanner.detect()
-        detectWithDelay()
-    }
-
-    private fun detectWithDelay(){
-        backGroundHandler.postDelayed(this::detect, 10000)
-    }
-
-    private fun snapshotWithDelay() {
-        backGroundHandler.postDelayed(this::snapshot, 10000)
     }
 
     private fun startBackgroundHandler() {
@@ -125,15 +91,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissionIsGranted() = PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
-
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else filesDir
-    }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE) {
@@ -155,21 +112,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onStart() {
-        super.onStart()
-        startBackgroundHandler()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         CoroutineClient.getInstance().disconnect()
-        val photoFile = File(
-                outputDir,
-                "qrPhoto"+".jpg")
-        if(photoFile.exists()){
-            photoFile.delete()
-        }
     }
 
 }
