@@ -12,13 +12,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
-import com.fveye.prepare_pages.FaceChecker
-import com.fveye.prepare_pages.QrChecker
+import com.fveye.pages.FaceChecker
+import com.fveye.pages.QrChecker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 //TODO 다음주 할 일
 /* *

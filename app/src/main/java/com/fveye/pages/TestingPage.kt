@@ -1,13 +1,13 @@
-package com.fveye.prepare_pages
+package com.fveye.pages
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
 
-class FaceChecker : AppCompatActivity() {
+class TestingPage : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.face_checker_layout)
+        setContentView(R.layout.testing_page_layout)
     }
 }
