@@ -24,8 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".pages.QrChecker"></activity>
-        <activity android:name=".pages.FaceChecker"></activity>
+        <activity android:name=".pages.QrChecker" />
+        <activity android:name=".pages.FaceChecker" />
+        <activity android:name=".pages.TestingPage"/>
     </application>
 
 </manifest>
