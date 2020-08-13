@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.view.WindowInsets
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -14,6 +15,7 @@ import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.pages.FaceChecker
 import com.fveye.pages.QrChecker
+import com.fveye.pages.TestingPage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +75,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         snapshot_btn.setOnClickListener {
+            val intent = Intent(this, TestingPage::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun hideSystemUI() {
+        window.setDecorFitsSystemWindows(false)
+        window.insetsController?.apply {
+            hide(WindowInsets.Type.navigationBars())
+            hide(WindowInsets.Type.statusBars())
         }
     }
 
