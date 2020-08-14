@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.WindowInsets
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
 import kotlinx.android.synthetic.main.testing_page_layout.*
@@ -14,6 +15,12 @@ class TestingPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
+            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+                Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
+                hideSystemUI()
+            }
+        }
 
         testing_page_testButton.apply {
             setOnClickListener {
@@ -26,7 +33,6 @@ class TestingPage : AppCompatActivity() {
     }
 
     //참조 https://developer.android.com/training/system-ui/immersive
-    //ui변경 있을 시는 콜백 구현하면됨 이걸로 화면 변경 감지하면 될듯 함
 
     private fun hideSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
