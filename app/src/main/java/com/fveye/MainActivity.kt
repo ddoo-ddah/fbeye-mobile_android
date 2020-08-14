@@ -82,15 +82,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    private fun hideSystemUI() {
-        window.setDecorFitsSystemWindows(false)
-        window.insetsController?.apply {
-            hide(WindowInsets.Type.navigationBars())
-            hide(WindowInsets.Type.statusBars())
-        }
-    }
-
     private fun moveNext(nextClass: String) {
         val intent = Intent(this, classSet[nextClass])
         startActivity(intent)
