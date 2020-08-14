@@ -23,8 +23,8 @@ class QrScanner {
 
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->
-                    //DoSomeThing
                     if (barcodes.size > 0){
+
                         Log.d("Qr data", barcodes[0].displayValue.toString())
                     }
                     imageProxy.close()

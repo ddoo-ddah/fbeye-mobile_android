@@ -1,20 +1,63 @@
 package com.fveye.network
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.io.InputStream
+import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
 import java.util.function.Consumer
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
 
+/**
+{
+"type": "res",
+"data": "ok"
+}
+
+{
+"type": "err",
+"data": 404
+}
+
+{
+"type": "btn",
+"data": [
+{
+"x": 100,
+"y": 200
+},
+{
+"x": 200,
+"y": 100
+}
+]
+}
+
+{
+"type": "eye",
+"data": "아이트래킹값"
+}
+
+EYE1234567890 (아이트래킹)
+AUTasdfzxcvqwer (qr 코드)
+ERR12345 (에러 코드)
+TES1start (테스트)
+RESdesktopOk (pc 연동)
+ */
+
 class CoroutineClient private constructor() {
 
     companion object {
         private var instance: CoroutineClient? = null
+        private val eyeTrackingIdentifier = "EYE"
+        private val qrIdentifier = "AUT"
+        private val errorIdentifier = "ERR"
+        private val examIdentifier = "TES"
+        private val pcResponseIdentifier = "RES"
 
         fun getInstance(): CoroutineClient =
                 instance ?: synchronized(this) {
@@ -22,17 +65,11 @@ class CoroutineClient private constructor() {
                         instance = it
                     }
                 }
+
     }
 
     private val IP = "192.168.200.144"
     private val PORT = 10101
-    private val eyeTrackingIdentifier = "EYE"
-    private val qrIdentifier = "AUT"
-    private val errorIdentifier = "ERR"
-    private val examIdentifier = "TES"
-    private val pcResponseIdentifier = "RES"
-    private var inputBuffer = ByteArray(20)
-
     private lateinit var client: SSLSocket
     private lateinit var moveNexPage: Consumer<String>
 
@@ -75,19 +112,20 @@ class CoroutineClient private constructor() {
     }
 
     fun readData() {
-        Thread{
-            while(client.isConnected){
+        Thread {
+            while (client.isConnected) {
                 var inputStream = client.inputStream
                 identifyMessage(readToBuffer(inputStream))
             }
         }.start()
     }
 
-    @Synchronized fun readToBuffer(inputStream : InputStream) : ByteArray{
-        if (!client.isConnected){
+    @Synchronized
+    fun readToBuffer(inputStream: InputStream): ByteArray {
+        if (!client.isConnected) {
             connectToServer()
         }
-        var input = ByteArray(20)
+        var input = ByteArray(40)
         inputStream.apply {
             read(input)
             close()
@@ -95,54 +133,54 @@ class CoroutineClient private constructor() {
         return input
     }
 
-    fun write(data: String) {
+    fun write(type : String, data: String) {
         if (!client.isConnected) {
             connectToServer()
         }
         runBlocking {
+            val jsonData = JSONObject()
+            jsonData.apply {
+                put("type", type)
+                put("data", data)
+            }
             client.outputStream.apply {
-                write(data.toByteArray())
+                write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
                 flush()
                 close()
             }
-//            identifyMessage(readToBuffer(client.inputStream))
         }
     }
 
     private fun identifyMessage(bytes: ByteArray) {
-        val identifier = ByteArray(3)
-        bytes.copyInto(identifier, 0, 0, 3)
-        Log.d("identifier", String(identifier))
-        when (String(identifier)) {
-            pcResponseIdentifier -> doSomeThingWithCase(bytes)
+        val jsonData = JSONObject(String(bytes))
+        when (val identifier = jsonData.getString("type")) {
+            pcResponseIdentifier -> doSomeThingWithCase()
             qrIdentifier -> qrTask(identifier)
-            errorIdentifier -> doSomeThingWithCase(bytes)
+            errorIdentifier -> doSomeThingWithCase()
             examIdentifier -> testFinish(identifier)
         }
     }
 
-    private fun doSomeThingWithCase(bytes: ByteArray) {}
+    private fun doSomeThingWithCase() {}
 
-    private fun qrTask(bytes: ByteArray) {
-        moveNexPage.accept(String(bytes))
+    private fun qrTask(data: String) {
+        moveNexPage.accept(data)
     }
 
-    private var examWord = ByteArray(3)
+    private var examWord: String? = null
 
-    private fun testFinish(bytes: ByteArray){
-        examWord = bytes.copyOf()
-        Log.d("testFinish", String())
+    private fun testFinish(data: String) {
+        examWord = data
     }
 
-    fun getExamWord():String{
-        return String()
+    fun getExamWord(): String {
+        return examWord!!
     }
 
     fun disconnect() {
         if (client.isConnected && !client.isClosed) {
             runBlocking {
                 withContext(Dispatchers.IO) {
-                    write("bye")
                     client.close()
                 }
             }
