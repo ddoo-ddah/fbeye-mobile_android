@@ -2,10 +2,12 @@ package com.fveye
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.WindowInsets
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -15,7 +17,7 @@ import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.pages.FaceChecker
 import com.fveye.pages.QrChecker
-import com.fveye.pages.TestingPage
+import com.fveye.pages.ExamPage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         if (checkPermissionIsGranted()) {
             CoroutineClient.getInstance().startClient()
-            backGroundHandler.post { snapshotor.startCamera() }
+//            backGroundHandler.post { snapshotor.startCamera() }
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
@@ -75,11 +77,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         snapshot_btn.setOnClickListener {
-            val intent = Intent(this, TestingPage::class.java)
+            val intent = Intent(this, ExamPage::class.java)
             startActivity(intent)
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun hideSystemUI() {
         window.setDecorFitsSystemWindows(false)
         window.insetsController?.apply {

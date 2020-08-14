@@ -1,8 +1,10 @@
 package com.fveye.network
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import java.security.cert.X509Certificate
 import java.util.function.Consumer
 import javax.net.ssl.SSLContext
@@ -27,7 +29,7 @@ class CoroutineClient private constructor() {
     private val eyeTrackingIdentifier = "EYE"
     private val qrIdentifier = "AUT"
     private val errorIdentifier = "ERR"
-    private val testIdentifier = "TES"
+    private val examIdentifier = "TES"
     private val pcResponseIdentifier = "RES"
     private var inputBuffer = ByteArray(20)
 
@@ -59,8 +61,9 @@ class CoroutineClient private constructor() {
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
-                        inputBuffer = ByteArray(20)
-                        client.inputStream.read(inputBuffer)
+//                        inputBuffer = ByteArray(20)
+//                        client.inputStream.read(inputBuffer)
+                        readData()
                     }
                 }.run { startHandshake() }
             }
@@ -72,15 +75,24 @@ class CoroutineClient private constructor() {
     }
 
     fun readData() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                client.inputStream.apply {
-                    inputBuffer = ByteArray(20)
-                    read(inputBuffer)
-                    close()
-                }
+        Thread{
+            while(client.isConnected){
+                var inputStream = client.inputStream
+                identifyMessage(readToBuffer(inputStream))
             }
+        }.start()
+    }
+
+    @Synchronized fun readToBuffer(inputStream : InputStream) : ByteArray{
+        if (!client.isConnected){
+            connectToServer()
         }
+        var input = ByteArray(20)
+        inputStream.apply {
+            read(input)
+            close()
+        }
+        return input
     }
 
     fun write(data: String) {
@@ -93,23 +105,19 @@ class CoroutineClient private constructor() {
                 flush()
                 close()
             }
-            client.inputStream.apply {
-                inputBuffer = ByteArray(20)
-                read(inputBuffer)
-                identifyMessage(inputBuffer)
-                close()
-            }
+//            identifyMessage(readToBuffer(client.inputStream))
         }
     }
 
     private fun identifyMessage(bytes: ByteArray) {
         val identifier = ByteArray(3)
         bytes.copyInto(identifier, 0, 0, 3)
+        Log.d("identifier", String(identifier))
         when (String(identifier)) {
             pcResponseIdentifier -> doSomeThingWithCase(bytes)
             qrIdentifier -> qrTask(identifier)
             errorIdentifier -> doSomeThingWithCase(bytes)
-            testIdentifier -> doSomeThingWithCase(bytes)
+            examIdentifier -> testFinish(identifier)
         }
     }
 
@@ -117,6 +125,17 @@ class CoroutineClient private constructor() {
 
     private fun qrTask(bytes: ByteArray) {
         moveNexPage.accept(String(bytes))
+    }
+
+    private var examWord = ByteArray(3)
+
+    private fun testFinish(bytes: ByteArray){
+        examWord = bytes.copyOf()
+        Log.d("testFinish", String())
+    }
+
+    fun getExamWord():String{
+        return String()
     }
 
     fun disconnect() {
