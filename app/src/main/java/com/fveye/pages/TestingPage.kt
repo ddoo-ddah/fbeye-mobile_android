@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
@@ -15,6 +16,8 @@ class TestingPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
                 Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
@@ -24,7 +27,7 @@ class TestingPage : AppCompatActivity() {
 
         testing_page_testButton.apply {
             setOnClickListener {
-                testing_page_background.setBackgroundColor(Color.parseColor("#ff000000"))
+                testing_page_background.setBackgroundColor(Color.parseColor("#ff110000"))
                 isClickable = false
                 visibility = View.INVISIBLE
                 hideSystemUI()
