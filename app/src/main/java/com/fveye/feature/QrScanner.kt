@@ -3,10 +3,14 @@ package com.fveye.feature
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import com.fveye.network.CoroutineClient
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class QrScanner {
 
@@ -24,8 +28,9 @@ class QrScanner {
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->
                     if (barcodes.size > 0){
-
-                        Log.d("Qr data", barcodes[0].displayValue.toString())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            CoroutineClient.getInstance().write(CoroutineClient.qrIdentifier, barcodes[0].displayValue.toString())
+                        }
                     }
                     imageProxy.close()
                 }

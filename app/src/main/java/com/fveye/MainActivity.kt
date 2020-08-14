@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var backGroundThread: HandlerThread
     private lateinit var backGroundHandler: Handler
 
-    private var classSet = mutableMapOf(Pair("AUT", QrChecker::class.java), Pair("ho", FaceChecker::class.java))
+    private var classSet = mutableMapOf(Pair("ok", FaceChecker::class.java), Pair("ok2", ExamPage::class.java))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,13 +67,13 @@ class MainActivity : AppCompatActivity() {
 
         if (checkPermissionIsGranted()) {
             CoroutineClient.getInstance().startClient()
-//            backGroundHandler.post { snapshotor.startCamera() }
+            backGroundHandler.post { snapshotor.startCamera() }
         } else {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
 
         send_button.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch { CoroutineClient.getInstance().write(user_input_editText.text.toString()) }
+            CoroutineScope(Dispatchers.IO).launch { CoroutineClient.getInstance().write("plane",user_input_editText.text.toString()) }
         }
 
         snapshot_btn.setOnClickListener {

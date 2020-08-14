@@ -1,5 +1,6 @@
 package com.fveye.network
 
+import android.annotation.SuppressLint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -7,6 +8,7 @@ import org.json.JSONObject
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
+import java.util.*
 import java.util.function.Consumer
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
@@ -53,11 +55,11 @@ class CoroutineClient private constructor() {
 
     companion object {
         private var instance: CoroutineClient? = null
-        private val eyeTrackingIdentifier = "EYE"
-        private val qrIdentifier = "AUT"
-        private val errorIdentifier = "ERR"
-        private val examIdentifier = "TES"
-        private val pcResponseIdentifier = "RES"
+        val eyeTrackingIdentifier = "EYE"
+        val qrIdentifier = "AUT"
+        val errorIdentifier = "ERR"
+        val examIdentifier = "TES"
+        val pcResponseIdentifier = "RES"
 
         fun getInstance(): CoroutineClient =
                 instance ?: synchronized(this) {
@@ -65,7 +67,6 @@ class CoroutineClient private constructor() {
                         instance = it
                     }
                 }
-
     }
 
     private val IP = "192.168.200.144"
@@ -82,9 +83,11 @@ class CoroutineClient private constructor() {
         runBlocking {
             withContext(Dispatchers.IO) {
                 val trustManager = arrayOf(object : X509TrustManager {
+                    @SuppressLint("TrustAllX509TrustManager")
                     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                     }
 
+                    @SuppressLint("TrustAllX509TrustManager")
                     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                     }
 
@@ -111,6 +114,24 @@ class CoroutineClient private constructor() {
         this.moveNexPage = run
     }
 
+    fun write(type: String, data: String) {
+        if (!client.isConnected) {
+            connectToServer()
+        }
+        runBlocking {
+            val jsonData = JSONObject()
+            jsonData.apply {
+                put("type", type)
+                put("data", data)
+            }
+            client.outputStream.apply {
+                write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                flush()
+                close()
+            }
+        }
+    }
+
     fun readData() {
         Thread {
             while (client.isConnected) {
@@ -133,25 +154,10 @@ class CoroutineClient private constructor() {
         return input
     }
 
-    fun write(type : String, data: String) {
-        if (!client.isConnected) {
-            connectToServer()
-        }
-        runBlocking {
-            val jsonData = JSONObject()
-            jsonData.apply {
-                put("type", type)
-                put("data", data)
-            }
-            client.outputStream.apply {
-                write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
-                flush()
-                close()
-            }
-        }
-    }
-
     private fun identifyMessage(bytes: ByteArray) {
+        if (Objects.isNull(bytes)) {
+            return
+        }
         val jsonData = JSONObject(String(bytes))
         when (val identifier = jsonData.getString("type")) {
             pcResponseIdentifier -> doSomeThingWithCase()
