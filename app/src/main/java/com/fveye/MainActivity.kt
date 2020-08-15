@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         main_access_button.setOnClickListener {
+            CoroutineClient.getInstance().startClient()
             val intent = Intent(this, QrChecker::class.java)
             startActivity(intent)
         }
