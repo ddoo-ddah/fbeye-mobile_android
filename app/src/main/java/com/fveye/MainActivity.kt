@@ -1,18 +1,26 @@
 package com.fveye
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.DisplayMetrics
+import android.view.Display
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.pages.QrChecker
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.qr_check_layout.*
+import java.util.*
 import kotlin.system.exitProcess
 
 //TODO 다음주 할 일
@@ -42,10 +50,12 @@ class MainActivity : AppCompatActivity() {
         private const val REQUEST_CODE = 1
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        CoroutineClient.getInstance()
 
         if (!checkPermissionIsGranted()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
@@ -85,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (CoroutineClient.getInstance().isAlive()){
+        if (!Objects.isNull(CoroutineClient) && CoroutineClient.getInstance().isAlive()){
             CoroutineClient.getInstance().disconnect()
         }
     }

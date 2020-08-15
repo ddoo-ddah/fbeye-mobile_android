@@ -1,10 +1,17 @@
 package com.fveye.pages
 
+import android.content.Intent
+import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.Display
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.Snapshotor
+import com.fveye.network.CoroutineClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 
 /**
@@ -16,17 +23,40 @@ import kotlinx.android.synthetic.main.qr_check_layout.*
  * 5. 시험 시작 후 pip 검은화면
  */
 
-
+@RequiresApi(Build.VERSION_CODES.R)
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
+    private lateinit var sendQrDataThread: Thread
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
 
-        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner).apply {
-            startCamera()
-        }
+        sendQrData()
+//        checkOk()
+    }
+
+    private fun sendQrData() {
+        val display: Display? = this.display
+        val point = Point()
+        display!!.getRealSize(point)
+        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point)
+        snapshotor.startCamera()
+    }
+
+    private fun checkOk() {
+        Thread {
+            Log.d("checkOk", "in")
+            while (true) {
+                if (CoroutineClient.getInstance().getAnswer() == "ok") {
+//                    sendQrDataThread.interrupt()
+                    break
+                }
+            }
+            Log.d("checkOk", "finish")
+            val intent = Intent(this, FaceChecker::class.java)
+            startActivity(intent)
+        }.start()
     }
 }
