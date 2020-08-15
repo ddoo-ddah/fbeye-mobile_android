@@ -54,14 +54,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var backGroundThread: HandlerThread
     private lateinit var backGroundHandler: Handler
 
-    private var classSet = mutableMapOf(Pair("ok", FaceChecker::class.java), Pair("ok2", ExamPage::class.java))
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         startBackgroundHandler()
-        CoroutineClient.getInstance().setMoveNext(this::moveNext)
 
         snapshotor = Snapshotor(this, preview, this as LifecycleOwner)
 
@@ -80,11 +77,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ExamPage::class.java)
             startActivity(intent)
         }
-    }
-
-    private fun moveNext(nextClass: String) {
-        val intent = Intent(this, classSet[nextClass])
-        startActivity(intent)
     }
 
     private fun startBackgroundHandler() {

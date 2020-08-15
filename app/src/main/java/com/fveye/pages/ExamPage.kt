@@ -52,7 +52,7 @@ class ExamPage : AppCompatActivity() {
     private fun checkNowTesting(){
         Thread{
             while(isTesting){
-                if(CoroutineClient.getInstance().getExamWord() == "TES"){
+                if(CoroutineClient.getInstance().getAnswer() == "TES"){
                     isTesting = false
                 }
             }

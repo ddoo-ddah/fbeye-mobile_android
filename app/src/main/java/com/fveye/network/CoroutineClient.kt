@@ -9,7 +9,6 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
 import java.util.*
-import java.util.function.Consumer
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
@@ -72,7 +71,6 @@ class CoroutineClient private constructor() {
     private val IP = "192.168.200.144"
     private val PORT = 10101
     private lateinit var client: SSLSocket
-    private lateinit var moveNexPage: Consumer<String>
 
     fun startClient() {
         connectToServer()
@@ -101,17 +99,11 @@ class CoroutineClient private constructor() {
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
                 client.apply {
                     addHandshakeCompletedListener {
-//                        inputBuffer = ByteArray(20)
-//                        client.inputStream.read(inputBuffer)
                         readData()
                     }
                 }.run { startHandshake() }
             }
         }
-    }
-
-    fun setMoveNext(run: Consumer<String>) {
-        this.moveNexPage = run
     }
 
     fun write(type: String, data: String) {
@@ -159,28 +151,22 @@ class CoroutineClient private constructor() {
             return
         }
         val jsonData = JSONObject(String(bytes))
-        when (val identifier = jsonData.getString("type")) {
-            pcResponseIdentifier -> doSomeThingWithCase()
-            qrIdentifier -> qrTask(identifier)
-            errorIdentifier -> doSomeThingWithCase()
-            examIdentifier -> testFinish(identifier)
+        when (jsonData.getString("type")) {
+            pcResponseIdentifier -> setAnswer(jsonData.getString("data"))
+            qrIdentifier -> setAnswer(jsonData.getString("data"))
+            errorIdentifier -> setAnswer(jsonData.getString("data"))
+            examIdentifier -> setAnswer(jsonData.getString("data"))
         }
     }
 
-    private fun doSomeThingWithCase() {}
+    private var answer: String? = null
 
-    private fun qrTask(data: String) {
-        moveNexPage.accept(data)
+    private fun setAnswer(data: String) {
+        answer = data
     }
 
-    private var examWord: String? = null
-
-    private fun testFinish(data: String) {
-        examWord = data
-    }
-
-    fun getExamWord(): String {
-        return examWord!!
+    fun getAnswer(): String {
+        return answer!!
     }
 
     fun disconnect() {
