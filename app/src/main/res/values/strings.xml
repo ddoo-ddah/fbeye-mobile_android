@@ -5,4 +5,6 @@
     <string name="qr_check_explanation_text">Please Take a photo include qrCode</string>
     <string name="snapshot">Snapshot</string>
     <string name="next">Next</string>
+    <string name="main_access_button_text">Prepare Exam</string>
+    <string name="main_exit_button_text">Exit</string>
 </resources>
