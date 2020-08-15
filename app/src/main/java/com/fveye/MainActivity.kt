@@ -2,26 +2,18 @@ package com.fveye
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.view.WindowInsets
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
-import com.fveye.pages.FaceChecker
 import com.fveye.pages.QrChecker
-import com.fveye.pages.ExamPage
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 //TODO 다음주 할 일
 /* *
@@ -50,39 +42,23 @@ class MainActivity : AppCompatActivity() {
         private const val REQUEST_CODE = 1
     }
 
-    private lateinit var snapshotor: Snapshotor
-    private lateinit var backGroundThread: HandlerThread
-    private lateinit var backGroundHandler: Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startBackgroundHandler()
-
-        snapshotor = Snapshotor(this, preview, this as LifecycleOwner)
-
-        if (checkPermissionIsGranted()) {
-            CoroutineClient.getInstance().startClient()
-            backGroundHandler.post { snapshotor.startCamera() }
-        } else {
+        if (!checkPermissionIsGranted()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
 
-        send_button.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch { CoroutineClient.getInstance().write("plane",user_input_editText.text.toString()) }
-        }
-
-        snapshot_btn.setOnClickListener {
-            val intent = Intent(this, ExamPage::class.java)
+        main_access_button.setOnClickListener {
+            val intent = Intent(this, QrChecker::class.java)
             startActivity(intent)
         }
-    }
 
-    private fun startBackgroundHandler() {
-        backGroundThread = HandlerThread("Back")
-        backGroundThread.start()
-        backGroundHandler = Handler(backGroundThread.looper)
+        main_exit_button.setOnClickListener {
+            exitProcess(0)
+        }
     }
 
     private fun checkPermissionIsGranted() = PERMISSIONS.all {
@@ -91,10 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE) {
-            if (checkPermissionIsGranted()) {
-                CoroutineClient.getInstance().startClient()
-                snapshotor.startCamera()
-            } else {
+            if (!checkPermissionIsGranted()) {
                 val alertBuilder = AlertDialog.Builder(this)
                 alertBuilder.apply {
                     setTitle("Permissions are rejected")
@@ -111,7 +84,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        CoroutineClient.getInstance().disconnect()
+        if (CoroutineClient.getInstance().isAlive()){
+            CoroutineClient.getInstance().disconnect()
+        }
     }
-
 }
