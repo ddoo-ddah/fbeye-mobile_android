@@ -43,13 +43,7 @@ import kotlin.system.exitProcess
  * ---------------3순위 서버연동 ----------------- 입출력 하는놈, 중간에서 연계해주는 놈 , interface 만들어서 상속받으면 데이터 받을 수 있게끔 (eventQueue 참고)
  * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
 */
-/**
- *
 
- --> companion object
-orientationEventListener.disable() --> destroy
-orientationEventListener.enable()
- */
 
 /**
  * EyeTracking 은 벡터 두개로 넘어 올거임
