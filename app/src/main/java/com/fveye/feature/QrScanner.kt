@@ -11,6 +11,7 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class QrScanner {
 
@@ -22,11 +23,19 @@ class QrScanner {
     @SuppressLint("UnsafeExperimentalUsageError")
     fun detect(imageProxy: ImageProxy) {
 
+        //TODO oriantation 수정, 기존꺼 안돌아감
         val mediaImage = imageProxy.image
         val input = InputImage.fromMediaImage(mediaImage!!, imageProxy.imageInfo.rotationDegrees)
 
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            CoroutineClient.getInstance().write("TES", mediaImage.toString())
+        }
+
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->
+
                     if (barcodes.size > 0){
                         CoroutineScope(Dispatchers.IO).launch {
                             CoroutineClient.getInstance().write(CoroutineClient.qrIdentifier, barcodes[0].displayValue.toString())

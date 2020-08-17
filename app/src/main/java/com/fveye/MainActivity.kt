@@ -1,25 +1,18 @@
 package com.fveye
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.util.DisplayMetrics
-import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.pages.QrChecker
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.qr_check_layout.*
+import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -37,6 +30,32 @@ import kotlin.system.exitProcess
  * ------------------------ 1순위 자동화 ------------------------
  * ------------------------ 2순위 pip --------------------------
 */
+
+//TODO
+// cameraX rotation 변경
+/* enum 쓰지 말 것 - 용량 늘어남
+ * constraint layout guide line 사용, 비율 맘대로 조절 가능 
+ * oriantaion 변경
+ * 실행 주기랑 실행 시간 실행 횟수 체크
+ * ---------------사진을 여러장 찍어서 전송 --> data queue 넣고 보내고  -------------------
+ * ---------------1순위 실행 주기랑 실행 시간 실행 횟수 체크 ------------------- --> 최대한 빨리 //오늘 안으로 보내기 - 어느부분이 어느정도 걸린다 가능한 상세히
+ * ---------------2순위 완성도 높이기 (QRChecker, ExamPage, 화면 넘기기, 에러 핸들링) ------------------
+ * ---------------3순위 서버연동 ----------------- 입출력 하는놈, 중간에서 연계해주는 놈 , interface 만들어서 상속받으면 데이터 받을 수 있게끔 (eventQueue 참고)
+ * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
+*/
+/**
+ * orientationEventListener =
+object : OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+override fun onOrientationChanged(arg0: Int) {
+val rotation = (360-(arg0+45)%360) / 90 % 4 * 90
+currentRotation = rotation
+}
+}
+private lateinit var orientationEventListener : OrientationEventListener
+private var currentRotation : Int = 0 --> companion object
+orientationEventListener.disable() --> destroy
+orientationEventListener.enable()
+ */
 
 /**
  * EyeTracking 은 벡터 두개로 넘어 올거임
@@ -93,9 +112,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
-        if (!Objects.isNull(CoroutineClient) && CoroutineClient.getInstance().isAlive()){
+        if (!Objects.isNull(CoroutineClient) && CoroutineClient.getInstance().isAlive()) {
             CoroutineClient.getInstance().disconnect()
         }
     }

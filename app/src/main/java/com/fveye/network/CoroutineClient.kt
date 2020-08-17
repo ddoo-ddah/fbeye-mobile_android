@@ -131,7 +131,7 @@ class CoroutineClient private constructor() {
         }
     }
 
-    fun readData() {
+    private fun readData() {
         Thread {
             while (client.isConnected) {
                 var inputStream = client.inputStream
@@ -141,7 +141,7 @@ class CoroutineClient private constructor() {
     }
 
     @Synchronized
-    fun readToBuffer(inputStream: InputStream): ByteArray {
+    private fun readToBuffer(inputStream: InputStream): ByteArray {
         if (!client.isConnected) {
             connectToServer()
         }

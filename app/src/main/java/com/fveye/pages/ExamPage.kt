@@ -49,6 +49,8 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
+    //TODO while , if 순서가 바뀔 가능성이 있음 - 자바 최적화 문제 - isTesting이 변경 안될 수 있음
+    // * 고쳐야됨
     private fun checkNowTesting(){
         Thread{
             while(isTesting){
@@ -58,8 +60,6 @@ class ExamPage : AppCompatActivity() {
             }
         }.start()
     }
-
-    //참조 https://developer.android.com/training/system-ui/immersive
 
     private fun hideSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE

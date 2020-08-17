@@ -13,6 +13,7 @@ import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
+import java.io.File
 
 /**
  * 테스트 페이지 순서
@@ -29,20 +30,35 @@ class QrChecker : AppCompatActivity() {
     private lateinit var snapshotor: Snapshotor
     private lateinit var sendQrDataThread: Thread
 
+    //TODO 화면 넘기기 체크    
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
 
         sendQrData()
-//        checkOk()
+        checkOk()
+    }
+
+
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
+        return if (mediaDir != null && mediaDir.exists())
+            mediaDir else filesDir
     }
 
     private fun sendQrData() {
+
+        val saveFile = File(
+                getOutputDirectory(),
+                "test" + ".jpg")
         val display: Display? = this.display
         val point = Point()
         display!!.getRealSize(point)
-        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point)
+        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point, saveFile)
         snapshotor.startCamera()
+
     }
 
     private fun checkOk() {
@@ -50,6 +66,7 @@ class QrChecker : AppCompatActivity() {
             Log.d("checkOk", "in")
             while (true) {
                 if (CoroutineClient.getInstance().getAnswer() == "ok") {
+//                    snapshotor.stopRecord()
 //                    sendQrDataThread.interrupt()
                     break
                 }
@@ -59,4 +76,6 @@ class QrChecker : AppCompatActivity() {
             startActivity(intent)
         }.start()
     }
+
+
 }
