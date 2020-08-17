@@ -14,6 +14,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.fveye.network.ImageClient
 import java.io.File
 
 
@@ -24,10 +25,12 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         private var currentRotation: Int = 0
     }
 
+    private val qrScanner = QrScanner()
     private lateinit var orientationEventListener: OrientationEventListener
 
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
     fun startCamera() {
+        qrScanner.init()
         orientationEventListener =
                 object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
                     override fun onOrientationChanged(arg0: Int) {
@@ -62,7 +65,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 //                            Log.d("sendQRData", (start-outStart).toString())
                             val mediaImage = imageProxy.image
                             if (mediaImage != null) {
-                                QrScanner().detect(imageProxy)
+                                qrScanner.detect(imageProxy)
                             }
 //                            var end = System.currentTimeMillis()
 //                            outStart = end
