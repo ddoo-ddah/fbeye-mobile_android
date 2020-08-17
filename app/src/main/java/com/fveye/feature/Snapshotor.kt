@@ -88,6 +88,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     fun destroy(){
         orientationEventListener.disable()
+        qrScanner.destroy()
     }
 
 }

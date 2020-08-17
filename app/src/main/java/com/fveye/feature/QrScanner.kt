@@ -21,7 +21,7 @@ class QrScanner {
     private val imageClient = ImageClient()
 
     fun init(){
-        imageClient.startServer()
+        imageClient.startClient()
     }
 
     @SuppressLint("UnsafeExperimentalUsageError")
@@ -33,7 +33,7 @@ class QrScanner {
 
 
 
-        imageClient.write("TES", mediaImage.toString())
+        imageClient.write(mediaImage.toString())
 
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->
@@ -48,5 +48,9 @@ class QrScanner {
                 .addOnFailureListener {
                     imageProxy.close()
                 }
+    }
+
+    fun destroy(){
+        imageClient.destroy()
     }
 }
