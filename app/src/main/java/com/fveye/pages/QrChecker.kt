@@ -28,10 +28,7 @@ import java.io.File
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
-    private lateinit var sendQrDataThread: Thread
 
-    //TODO 화면 넘기기 체크    
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
@@ -77,5 +74,8 @@ class QrChecker : AppCompatActivity() {
         }.start()
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        snapshotor.destroy()
+    }
 }

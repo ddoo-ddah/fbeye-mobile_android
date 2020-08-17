@@ -44,15 +44,9 @@ import kotlin.system.exitProcess
  * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
 */
 /**
- * orientationEventListener =
-object : OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-override fun onOrientationChanged(arg0: Int) {
-val rotation = (360-(arg0+45)%360) / 90 % 4 * 90
-currentRotation = rotation
-}
-}
-private lateinit var orientationEventListener : OrientationEventListener
-private var currentRotation : Int = 0 --> companion object
+ *
+
+ --> companion object
 orientationEventListener.disable() --> destroy
 orientationEventListener.enable()
  */

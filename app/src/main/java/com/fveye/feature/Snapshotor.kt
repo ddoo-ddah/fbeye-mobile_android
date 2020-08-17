@@ -3,12 +3,13 @@ package com.fveye.feature
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Point
-import android.media.MediaRecorder
+import android.hardware.SensorManager
 import android.util.Log
 import android.util.Size
-import androidx.camera.camera2.internal.VideoCaptureConfigProvider
-import androidx.camera.core.*
-import androidx.camera.core.impl.VideoCaptureConfig
+import android.view.OrientationEventListener
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -17,17 +18,32 @@ import java.io.File
 
 
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
-                 private val lifecycleOwner: LifecycleOwner, private val point: Point, var file :File) {
+                 private val lifecycleOwner: LifecycleOwner, private val point: Point, var file: File) {
+
+    companion object {
+        private var currentRotation: Int = 0
+    }
+
+    private lateinit var orientationEventListener: OrientationEventListener
 
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
     fun startCamera() {
+        orientationEventListener =
+                object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
+                    override fun onOrientationChanged(arg0: Int) {
+                        val rotation = (360 - (arg0 + 45) % 360) / 90 % 4 * 90
+                        currentRotation = rotation
+                    }
+                }
 
+        orientationEventListener.enable()
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
 
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .setTargetResolution(Size(point.x, point.y))
+                    .setTargetRotation(currentRotation)
                     .build()
                     .also {
                         it.setSurfaceProvider(previewView.createSurfaceProvider())
@@ -65,6 +81,10 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             }
 
         }, ContextCompat.getMainExecutor(context))
+    }
+
+    fun destroy(){
+        orientationEventListener.disable()
     }
 
 }
