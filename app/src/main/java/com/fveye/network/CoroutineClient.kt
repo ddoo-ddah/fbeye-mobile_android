@@ -76,13 +76,6 @@ class CoroutineClient private constructor() {
         connectToServer()
     }
 
-    fun isAlive() : Boolean{
-        if(Objects.isNull(client) || client.isClosed){
-            return false
-        }
-        return true
-    }
-
     //Thread도 가능
     private fun connectToServer() {
         runBlocking {

@@ -1,6 +1,8 @@
 package com.fveye.feature
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageProxy
 import com.fveye.network.CoroutineClient
 import com.fveye.network.ImageClient
@@ -24,16 +26,16 @@ class QrScanner {
         imageClient.startClient()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError")
     fun detect(imageProxy: ImageProxy) {
 
-        //TODO oriantation 수정, 기존꺼 안돌아감
         val mediaImage = imageProxy.image
         val input = InputImage.fromMediaImage(mediaImage!!, imageProxy.imageInfo.rotationDegrees)
 
 
 
-        imageClient.write(mediaImage.toString())
+        imageClient.write(mediaImage)
 
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->

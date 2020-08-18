@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Point
 import android.hardware.SensorManager
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.OrientationEventListener
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -28,6 +30,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private val qrScanner = QrScanner()
     private lateinit var orientationEventListener: OrientationEventListener
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
     fun startCamera() {
         qrScanner.init()
