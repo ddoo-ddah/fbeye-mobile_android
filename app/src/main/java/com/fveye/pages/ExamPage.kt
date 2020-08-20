@@ -2,6 +2,7 @@ package com.fveye.pages
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -50,7 +51,9 @@ class ExamPage : AppCompatActivity() {
             while(isTesting){
                 if(CoroutineClient.getInstance().getAnswer() == "ok"){
                     isTesting = false
-                    exam_page_finishTextView.visibility = View.VISIBLE
+                    runOnUiThread {
+                        exam_page_finishTextView.visibility = View.VISIBLE
+                    }
                 }
             }
         }.start()

@@ -30,6 +30,7 @@ class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
     private val imageClient = ImageClient()
+    private val qrSendThread = Thread()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +54,7 @@ class QrChecker : AppCompatActivity() {
     }
 
     private fun sendQrData() {
-
+        qrSendThread
         val saveFile = File(
                 getOutputDirectory(),
                 "test" + ".jpg")

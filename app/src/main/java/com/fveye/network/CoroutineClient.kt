@@ -1,6 +1,7 @@
 package com.fveye.network
 
 import android.annotation.SuppressLint
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -151,15 +152,17 @@ class CoroutineClient private constructor() {
             return
         }
         val jsonData = JSONObject(String(bytes))
-        when (jsonData.getString("type")) {
-            pcResponseIdentifier -> setAnswer(jsonData.getString("data"))
-            qrIdentifier -> setAnswer(jsonData.getString("data"))
-            errorIdentifier -> setAnswer(jsonData.getString("data"))
-            examIdentifier -> setAnswer(jsonData.getString("data"))
-        }
+        Log.d("Read", jsonData.toString())
+//        when (jsonData.getString("type")) {
+//            pcResponseIdentifier -> setAnswer(jsonData.getString("data"))
+//            qrIdentifier -> setAnswer(jsonData.getString("data"))
+//            errorIdentifier -> setAnswer(jsonData.getString("data"))
+//            examIdentifier -> setAnswer(jsonData.getString("data"))
+//        }
+        setAnswer(jsonData.getString("data"))
     }
 
-    private var answer: String? = null
+    private var answer: String = "no"
 
     private fun setAnswer(data: String) {
         answer = data
@@ -167,8 +170,8 @@ class CoroutineClient private constructor() {
 
     fun getAnswer(): String {
         var string = answer
-        answer = null
-        return string!!
+        answer = "no"
+        return string
     }
 
     fun disconnect() {
