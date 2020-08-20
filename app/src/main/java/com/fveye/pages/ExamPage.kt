@@ -15,11 +15,6 @@ class ExamPage : AppCompatActivity() {
 
     private var isTesting = true
 
-    /**
-     * 1. 시험 시작의 카운팅이 끝난 뒤 시험 시작 코드를 서버로부터 받고 화면 제어 시작 == TestingPage 클래스 시작
-     * 2. 지금은 임의코드 TES1이 오면 종료
-     */
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
