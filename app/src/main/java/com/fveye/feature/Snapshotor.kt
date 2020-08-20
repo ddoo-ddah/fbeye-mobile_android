@@ -21,7 +21,7 @@ import java.io.File
 
 
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
-                 private val lifecycleOwner: LifecycleOwner, private val point: Point, var file: File) {
+                 private val lifecycleOwner: LifecycleOwner, private val point: Point) {
 
     companion object {
         private var currentRotation: Int = 0

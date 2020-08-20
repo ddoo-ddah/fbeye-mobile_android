@@ -30,7 +30,7 @@ class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
     private val imageClient = ImageClient()
-    private val qrSendThread = Thread()
+    private lateinit var qrSendThread:Thread
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,37 +46,28 @@ class QrChecker : AppCompatActivity() {
         imageClient.startClient()
     }
 
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else filesDir
-    }
-
     private fun sendQrData() {
-        qrSendThread
-        val saveFile = File(
-                getOutputDirectory(),
-                "test" + ".jpg")
-        val display: Display? = this.display
-        val point = Point()
-        display!!.getRealSize(point)
-        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point, saveFile)
-        snapshotor.startCamera()
-
+        qrSendThread = Thread{
+            Runnable {
+                val display: Display? = this.display
+                val point = Point()
+                display!!.getRealSize(point)
+                snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point)
+                snapshotor.startCamera()
+            }
+        }
+        qrSendThread.start()
     }
 
     private fun checkOk() {
         Thread {
-            Log.d("checkOk", "in")
             while (true) {
                 if (CoroutineClient.getInstance().getAnswer() == "ok") {
-//                    sendQrDataThread.interrupt()
+                    qrSendThread.interrupt()
                     break
                 }
                 imageClient.write(qr_check_preview.bitmap)
             }
-            Log.d("checkOk", "finish")
             val intent = Intent(this, FaceChecker::class.java)
             startActivity(intent)
         }.start()
@@ -84,6 +75,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        imageClient.destroy()
         snapshotor.destroy()
     }
 }
