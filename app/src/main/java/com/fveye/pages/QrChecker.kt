@@ -28,20 +28,13 @@ import kotlinx.android.synthetic.main.qr_check_layout.*
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
-    private val imageClient = ImageClient()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
-
         sendQrData()
         checkOk()
-
-    }
-
-    override fun onStart() {
-        super.onStart()
-        imageClient.startClient()
     }
 
     private fun sendQrData() {
@@ -58,7 +51,6 @@ class QrChecker : AppCompatActivity() {
                 if (CoroutineClient.getInstance().getAnswer() == "ok") {
                     break
                 }
-                imageClient.write(qr_check_preview.bitmap)
             }
             val intent = Intent(this, FaceChecker::class.java)
             startActivity(intent)
@@ -67,7 +59,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        imageClient.destroy()
+
         snapshotor.destroy()
     }
 }
