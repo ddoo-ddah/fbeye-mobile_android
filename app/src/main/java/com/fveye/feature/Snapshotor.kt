@@ -33,7 +33,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
     fun startCamera() {
-        qrScanner.init()
         orientationEventListener =
                 object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
                     override fun onOrientationChanged(arg0: Int) {
@@ -91,7 +90,5 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     fun destroy(){
         orientationEventListener.disable()
-        qrScanner.destroy()
     }
-
 }

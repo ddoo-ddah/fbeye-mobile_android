@@ -10,6 +10,7 @@ import androidx.camera.core.ImageProxy
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 class ImageClient {
 
@@ -23,40 +24,20 @@ class ImageClient {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun write(data: Image){
+    fun write(data: Bitmap?){
+        if(Objects.isNull(data)){
+            return
+        }
         Thread{
-
-            val yBuffer = data.planes[0].buffer // Y
-            val uBuffer = data.planes[1].buffer // U
-            val vBuffer = data.planes[2].buffer // V
-
-            val ySize = yBuffer.remaining()
-            val uSize = uBuffer.remaining()
-            val vSize = vBuffer.remaining()
-
-            val bytes = ByteArray(ySize + uSize + vSize)
-
-            yBuffer.get(bytes, 0, ySize)
-            uBuffer.get(bytes, 0, uSize)
-            vBuffer.get(bytes, 0, vSize)
-
-            val yuvImage = YuvImage(bytes, ImageFormat.NV21, data.width, data.height, null)
-
-            var baos : ByteArrayOutputStream = ByteArrayOutputStream()
-
-            yuvImage.compressToJpeg(Rect(0,0,yuvImage.width, yuvImage.height), 75, baos)
-
-            var imageBytes = baos.toByteArray()
-
-            val bitmapOptions = BitmapFactory.Options()
-            bitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565
-            val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size, bitmapOptions)
-
+            //TODO bitmap 리사이징 원본 넘어와서 너무 큼
+            
+            var start = System.currentTimeMillis()
             val byteArrayOutputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            data!!.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
 
             val base64Data = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
             client.emit("EYE", base64Data)
+            Log.d("Image write Time", (System.currentTimeMillis() - start).toString())
             client.on("EYE", listner)
         }.start()
     }
@@ -71,4 +52,5 @@ class ImageClient {
             client.close()
         }.start()
     }
+
 }

@@ -20,11 +20,6 @@ class QrScanner {
             .setBarcodeFormats(Barcode.QR_CODE)
             .build()
     private var scanner = BarcodeScanning.getClient(options)
-    private val imageClient = ImageClient()
-
-    fun init(){
-        imageClient.startClient()
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError")
@@ -33,9 +28,6 @@ class QrScanner {
         val mediaImage = imageProxy.image
         val input = InputImage.fromMediaImage(mediaImage!!, imageProxy.imageInfo.rotationDegrees)
 
-
-
-        imageClient.write(mediaImage)
 
         val result = scanner.process(input)
                 .addOnSuccessListener { barcodes ->
@@ -50,9 +42,5 @@ class QrScanner {
                 .addOnFailureListener {
                     imageProxy.close()
                 }
-    }
-
-    fun destroy(){
-        imageClient.destroy()
     }
 }

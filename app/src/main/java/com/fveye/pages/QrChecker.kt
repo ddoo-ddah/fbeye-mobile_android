@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
+import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import java.io.File
 
@@ -28,6 +29,7 @@ import java.io.File
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
+    private val imageClient = ImageClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +37,13 @@ class QrChecker : AppCompatActivity() {
 
         sendQrData()
         checkOk()
+
     }
 
+    override fun onStart() {
+        super.onStart()
+        imageClient.startClient()
+    }
 
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
@@ -63,10 +70,10 @@ class QrChecker : AppCompatActivity() {
             Log.d("checkOk", "in")
             while (true) {
                 if (CoroutineClient.getInstance().getAnswer() == "ok") {
-//                    snapshotor.stopRecord()
 //                    sendQrDataThread.interrupt()
                     break
                 }
+                imageClient.write(qr_check_preview.bitmap)
             }
             Log.d("checkOk", "finish")
             val intent = Intent(this, FaceChecker::class.java)
