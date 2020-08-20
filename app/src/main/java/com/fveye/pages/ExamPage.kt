@@ -1,27 +1,41 @@
 package com.fveye.pages
 
+import android.content.Context
+import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
+import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import kotlinx.android.synthetic.main.testing_page_layout.*
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(Build.VERSION_CODES.R)
 class ExamPage : AppCompatActivity() {
 
     private var isTesting = true
     private val imageClient = ImageClient()
+    private lateinit var snapshotor: Snapshotor
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
+
+
+        val display: Display? = this.display
+        val point = Point()
+        display!!.getRealSize(point)
+        snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
+        snapshotor.startCamera()
 
         exam_page_finishTextView.visibility = View.INVISIBLE
 
