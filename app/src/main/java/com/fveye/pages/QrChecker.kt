@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +11,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
-import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 
 /**
@@ -42,7 +40,7 @@ class QrChecker : AppCompatActivity() {
         val point = Point()
         display!!.getRealSize(point)
         snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point)
-        snapshotor.startCamera()
+        snapshotor.startCameraWithAnalysis()
     }
 
     private fun checkOk() {
