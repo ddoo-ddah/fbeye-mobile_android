@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
+import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 
 /**
@@ -27,7 +28,7 @@ import kotlinx.android.synthetic.main.qr_check_layout.*
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
-//    private val imageClient = ImageClient()
+    private val imageClient = ImageClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +41,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-//        imageClient.startClient()
+        imageClient.startClient()
     }
 
     private fun sendQrData() {
@@ -57,7 +58,7 @@ class QrChecker : AppCompatActivity() {
                 if (CoroutineClient.getInstance().getAnswer() == "ok") {
                     break
                 }
-//                imageClient.write(qr_check_preview.bitmap)
+                imageClient.write(qr_check_preview.bitmap)
             }
             val intent = Intent(this, FaceChecker::class.java)
             startActivity(intent)
@@ -66,7 +67,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-//        imageClient.destroy()
+        imageClient.destroy()
         snapshotor.destroy()
     }
 }
