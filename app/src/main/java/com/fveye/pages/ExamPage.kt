@@ -1,9 +1,7 @@
 package com.fveye.pages
 
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -15,6 +13,7 @@ import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import kotlinx.android.synthetic.main.testing_page_layout.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 class ExamPage : AppCompatActivity() {
 
     private var isTesting = true
@@ -33,11 +32,10 @@ class ExamPage : AppCompatActivity() {
 
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                if (isTesting){
+                if (isTesting) {
                     Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
                     hideSystemUI()
-                }
-                else{
+                } else {
                     Toast.makeText(this, "Exam is finish", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -51,11 +49,10 @@ class ExamPage : AppCompatActivity() {
 
     //TODO while , if 순서가 바뀔 가능성이 있음 - 자바 최적화 문제 - isTesting이 변경 안될 수 있음
     // * 고쳐야됨
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun checkNowTesting(){
-        Thread{
-            while(isTesting){
-                if(CoroutineClient.getInstance().getAnswer() == "ok"){
+    private fun checkNowTesting() {
+        Thread {
+            while (isTesting) {
+                if (CoroutineClient.getInstance().getAnswer() == "ok") {
                     isTesting = false
                     imageClient.destroy()
                     runOnUiThread {
