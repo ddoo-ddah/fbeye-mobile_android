@@ -29,15 +29,12 @@ class ImageClient {
             return
         }
         Thread{
-            //TODO bitmap 리사이징 원본 넘어와서 너무 큼
-            
-            var start = System.currentTimeMillis()
+            val resizedBitmap = Bitmap.createScaledBitmap(data!!, data.width/4, data.height/4, false)
             val byteArrayOutputStream = ByteArrayOutputStream()
-            data!!.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
 
             val base64Data = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
             client.emit("EYE", base64Data)
-            Log.d("Image write Time", (System.currentTimeMillis() - start).toString())
             client.on("EYE", listner)
         }.start()
     }
