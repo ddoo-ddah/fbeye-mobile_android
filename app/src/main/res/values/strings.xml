@@ -7,4 +7,5 @@
     <string name="next">Next</string>
     <string name="main_access_button_text">Prepare Exam</string>
     <string name="main_exit_button_text">Exit</string>
+    <string name="exam_page_finish_text">수고하셨습니다.</string>
 </resources>

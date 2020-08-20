@@ -23,6 +23,7 @@ class ExamPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        hideSystemUI()
         checkNowTesting()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -38,15 +39,6 @@ class ExamPage : AppCompatActivity() {
                 }
             }
         }
-
-        testing_page_testButton.apply {
-            setOnClickListener {
-                testing_page_background.setBackgroundColor(Color.parseColor("#ff110000"))
-                isClickable = false
-                visibility = View.INVISIBLE
-                hideSystemUI()
-            }
-        }
     }
 
     //TODO while , if 순서가 바뀔 가능성이 있음 - 자바 최적화 문제 - isTesting이 변경 안될 수 있음
@@ -54,7 +46,7 @@ class ExamPage : AppCompatActivity() {
     private fun checkNowTesting(){
         Thread{
             while(isTesting){
-                if(CoroutineClient.getInstance().getAnswer() == "TES"){
+                if(CoroutineClient.getInstance().getAnswer() == "ok"){
                     isTesting = false
                 }
             }

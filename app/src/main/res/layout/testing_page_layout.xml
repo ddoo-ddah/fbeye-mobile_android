@@ -5,11 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/testing_page_testButton"
+    <TextView
+        android:id="@+id/exam_page_finishTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/exam_page_finish_text"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="50sp"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
