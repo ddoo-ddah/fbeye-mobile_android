@@ -44,11 +44,6 @@ import kotlin.system.exitProcess
  * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
 */
 
-
-/**
- * EyeTracking 은 벡터 두개로 넘어 올거임
- */
-
 class MainActivity : AppCompatActivity() {
 
     companion object {

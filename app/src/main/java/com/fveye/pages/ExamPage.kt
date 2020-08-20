@@ -15,8 +15,8 @@ import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import com.fveye.network.ImageClient
-import kotlinx.android.synthetic.main.qr_check_layout.*
 import kotlinx.android.synthetic.main.testing_page_layout.*
+import org.json.JSONObject
 
 @RequiresApi(Build.VERSION_CODES.R)
 class ExamPage : AppCompatActivity() {
@@ -66,7 +66,9 @@ class ExamPage : AppCompatActivity() {
     private fun checkNowTesting() {
         Thread {
             while (isTesting) {
-                if (CoroutineClient.getInstance().getAnswer() == "ok") {
+                var bytes = CoroutineClient.getInstance().readTest()
+                var jsonData = JSONObject(String(bytes))
+                if (jsonData.getString("data") == "ok") {
                     isTesting = false
                     imageClient.destroy()
                     runOnUiThread {

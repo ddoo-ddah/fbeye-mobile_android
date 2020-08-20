@@ -2,9 +2,11 @@ package com.fveye.pages
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
 import com.fveye.network.CoroutineClient
+import org.json.JSONObject
 
 class FaceChecker : AppCompatActivity() {
 
@@ -17,8 +19,10 @@ class FaceChecker : AppCompatActivity() {
 
     private fun waitingForStart(){
         Thread{
-            while(true){
-                if (CoroutineClient.getInstance().getAnswer() == "ok"){
+            while (true) {
+                var bytes = CoroutineClient.getInstance().readTest()
+                var jsonData = JSONObject(String(bytes))
+                if (jsonData.getString("data") == "ok") {
                     break
                 }
             }

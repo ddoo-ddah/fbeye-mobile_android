@@ -13,6 +13,7 @@ import java.util.*
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
+import kotlin.reflect.KFunction
 
 /**
 {
@@ -98,11 +99,7 @@ class CoroutineClient private constructor() {
                     init(null, trustManager, null)
                 }
                 client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
-                client.apply {
-                    addHandshakeCompletedListener {
-                        readData()
-                    }
-                }.run { startHandshake() }
+                client.run { startHandshake() }
             }
         }
     }
@@ -125,13 +122,8 @@ class CoroutineClient private constructor() {
         }
     }
 
-    private fun readData() {
-        Thread {
-            while (client.isConnected) {
-                var inputStream = client.inputStream
-                identifyMessage(readToBuffer(inputStream))
-            }
-        }.start()
+    fun readTest() : ByteArray{
+        return readToBuffer(client.inputStream)
     }
 
     @Synchronized
@@ -145,33 +137,6 @@ class CoroutineClient private constructor() {
             close()
         }
         return input
-    }
-
-    private fun identifyMessage(bytes: ByteArray) {
-        if (Objects.isNull(bytes)) {
-            return
-        }
-        val jsonData = JSONObject(String(bytes))
-        Log.d("Read", jsonData.toString())
-//        when (jsonData.getString("type")) {
-//            pcResponseIdentifier -> setAnswer(jsonData.getString("data"))
-//            qrIdentifier -> setAnswer(jsonData.getString("data"))
-//            errorIdentifier -> setAnswer(jsonData.getString("data"))
-//            examIdentifier -> setAnswer(jsonData.getString("data"))
-//        }
-        setAnswer(jsonData.getString("data"))
-    }
-
-    private var answer: String = "no"
-
-    private fun setAnswer(data: String) {
-        answer = data
-    }
-
-    fun getAnswer(): String {
-        var string = answer
-        answer = "no"
-        return string
     }
 
     fun disconnect() {

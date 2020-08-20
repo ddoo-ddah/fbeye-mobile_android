@@ -12,6 +12,7 @@ import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.CoroutineClient
 import kotlinx.android.synthetic.main.qr_check_layout.*
+import org.json.JSONObject
 
 /**
  * 테스트 페이지 순서
@@ -46,7 +47,9 @@ class QrChecker : AppCompatActivity() {
     private fun checkOk() {
         Thread {
             while (true) {
-                if (CoroutineClient.getInstance().getAnswer() == "ok") {
+                var bytes = CoroutineClient.getInstance().readTest()
+                var jsonData = JSONObject(String(bytes))
+                if (jsonData.getString("data") == "ok") {
                     break
                 }
             }
