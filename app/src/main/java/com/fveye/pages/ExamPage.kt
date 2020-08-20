@@ -59,7 +59,7 @@ class ExamPage : AppCompatActivity() {
                         exam_page_finishTextView.visibility = View.VISIBLE
                     }
                 }
-                imageClient.write(qr_check_preview.bitmap)
+                imageClient.write(exam_page_preivew.bitmap)
             }
         }.start()
     }
