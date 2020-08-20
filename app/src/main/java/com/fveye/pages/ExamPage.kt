@@ -23,6 +23,8 @@ class ExamPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        exam_page_finishTextView.visibility = View.INVISIBLE
+
         hideSystemUI()
         checkNowTesting()
 
@@ -48,6 +50,7 @@ class ExamPage : AppCompatActivity() {
             while(isTesting){
                 if(CoroutineClient.getInstance().getAnswer() == "ok"){
                     isTesting = false
+                    exam_page_finishTextView.visibility = View.VISIBLE
                 }
             }
         }.start()

@@ -166,7 +166,9 @@ class CoroutineClient private constructor() {
     }
 
     fun getAnswer(): String {
-        return answer!!
+        var string = answer
+        answer = null
+        return string!!
     }
 
     fun disconnect() {
