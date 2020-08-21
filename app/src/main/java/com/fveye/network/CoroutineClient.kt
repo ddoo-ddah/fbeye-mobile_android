@@ -140,7 +140,7 @@ class CoroutineClient private constructor() {
     }
 
     fun disconnect() {
-        if (client.isConnected && !client.isClosed) {
+        if (::client.isLateinit){
             runBlocking {
                 withContext(Dispatchers.IO) {
                     client.close()
