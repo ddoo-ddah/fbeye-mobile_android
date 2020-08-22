@@ -17,6 +17,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.fveye.network.ImageClient
+import com.google.mlkit.vision.common.InputImage
 import java.io.File
 
 
@@ -48,7 +49,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .setTargetResolution(Size(point.x, point.y))
-//                    .setTargetRotation(currentRotation)
                     .build()
                     .also {
                         it.setSurfaceProvider(previewView.createSurfaceProvider())
@@ -63,8 +63,10 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                         it.setAnalyzer(ContextCompat.getMainExecutor(context), { imageProxy ->
                             val mediaImage = imageProxy.image
                             if (mediaImage != null) {
-                                qrScanner.detect(imageProxy)
+                                val image = InputImage.fromMediaImage(mediaImage, currentRotation)
+                                qrScanner.detect(image)
                             }
+                            imageProxy.close()
                         })
                     }
 
@@ -73,42 +75,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
                 cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector, preview, analysis)
-
-            } catch (exc: Exception) {
-                Log.e("TAG", "Use case binding failed", exc)
-            }
-
-        }, ContextCompat.getMainExecutor(context))
-    }
-
-    fun startCamera(){
-        orientationEventListener =
-                object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
-                    override fun onOrientationChanged(arg0: Int) {
-                        val rotation = (360 - (arg0 + 45) % 360) / 90 % 4 * 90
-                        currentRotation = rotation
-                    }
-                }
-
-        orientationEventListener.enable()
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-        cameraProviderFuture.addListener({
-
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder()
-                    .setTargetResolution(Size(point.x, point.y))
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previewView.createSurfaceProvider())
-                    }
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            try {
-                cameraProvider.unbindAll()
-
-                cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector, preview)
 
             } catch (exc: Exception) {
                 Log.e("TAG", "Use case binding failed", exc)

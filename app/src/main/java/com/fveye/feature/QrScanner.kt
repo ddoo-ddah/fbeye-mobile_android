@@ -22,13 +22,9 @@ class QrScanner {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError")
-    fun detect(imageProxy: ImageProxy) {
+    fun detect(image : InputImage) {
 
-        val mediaImage = imageProxy.image
-        val input = InputImage.fromMediaImage(mediaImage!!, imageProxy.imageInfo.rotationDegrees)
-
-
-        val result = scanner.process(input)
+        val result = scanner.process(image)
                 .addOnSuccessListener { barcodes ->
 
                     if (barcodes.size > 0) {
@@ -36,10 +32,6 @@ class QrScanner {
                             Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
                         }
                     }
-                    imageProxy.close()
-                }
-                .addOnFailureListener {
-                    imageProxy.close()
                 }
     }
 }
