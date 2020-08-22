@@ -62,7 +62,6 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         snapshotor.destroy()
     }
 }

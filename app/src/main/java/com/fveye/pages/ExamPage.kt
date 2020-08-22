@@ -89,4 +89,10 @@ class ExamPage : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        snapshotor.destroy()
+        imageClient.destroy()
+        CoroutineClient.getInstance().disconnect()
+    }
 }
