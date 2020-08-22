@@ -16,9 +16,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.fveye.network.ImageClient
+import com.fveye.network.Client
 import com.google.mlkit.vision.common.InputImage
-import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
@@ -56,17 +59,28 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+            val singleExecutor = Executors.newSingleThreadExecutor()
+
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also {
-                        it.setAnalyzer(ContextCompat.getMainExecutor(context), { imageProxy ->
+                        it.setAnalyzer(singleExecutor, { imageProxy ->
                             val mediaImage = imageProxy.image
                             if (mediaImage != null) {
                                 val image = InputImage.fromMediaImage(mediaImage, currentRotation)
-                                qrScanner.detect(image)
+                                var result = qrScanner.detect(image)
+                                result.addOnSuccessListener { barcodes ->
+                                    if (barcodes.size > 0) {
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
+                                        }
+                                    }
+                                    imageProxy.close()
+                                }.addOnFailureListener {
+                                    imageProxy.close()
+                                }
                             }
-                            imageProxy.close()
                         })
                     }
 
@@ -83,7 +97,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun destroy(){
+    fun destroy() {
         orientationEventListener.disable()
     }
 }

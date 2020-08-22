@@ -2,9 +2,10 @@ package com.fveye.feature
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.camera.core.ImageProxy
 import com.fveye.network.Client
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -22,16 +23,8 @@ class QrScanner {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError")
-    fun detect(image : InputImage) {
+    fun detect(image : InputImage): Task<MutableList<com.google.mlkit.vision.barcode.Barcode>> {
 
-        val result = scanner.process(image)
-                .addOnSuccessListener { barcodes ->
-
-                    if (barcodes.size > 0) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
-                        }
-                    }
-                }
+        return scanner.process(image)
     }
 }
