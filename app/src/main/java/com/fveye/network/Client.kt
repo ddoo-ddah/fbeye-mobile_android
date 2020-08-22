@@ -18,6 +18,7 @@ class Client private constructor() {
 
     companion object {
         private var instance: Client? = null
+        var qrIdentifier = "RES"
 
         fun getInstance(): Client =
                 instance ?: synchronized(this) {
