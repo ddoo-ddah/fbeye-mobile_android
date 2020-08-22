@@ -48,7 +48,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .setTargetResolution(Size(point.x, point.y))
-                    .setTargetRotation(currentRotation)
+//                    .setTargetRotation(currentRotation)
                     .build()
                     .also {
                         it.setSurfaceProvider(previewView.createSurfaceProvider())
@@ -97,7 +97,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .setTargetResolution(Size(point.x, point.y))
-                    .setTargetRotation(currentRotation)
                     .build()
                     .also {
                         it.setSurfaceProvider(previewView.createSurfaceProvider())

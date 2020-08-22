@@ -35,12 +35,7 @@ class ImageClient {
 
             val base64Data = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
             client.emit("EYE", base64Data)
-            client.on("EYE", listner)
         }.start()
-    }
-
-    private val listner : Emitter.Listener = Emitter.Listener {
-        Log.d("Receive", "Received!")
     }
 
     fun destroy(){

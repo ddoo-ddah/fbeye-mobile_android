@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import com.fveye.R
 import com.fveye.feature.Snapshotor
-import com.fveye.network.CoroutineClient
+import com.fveye.network.Client
 import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.testing_page_layout.*
 import org.json.JSONObject
@@ -35,7 +35,7 @@ class ExamPage : AppCompatActivity() {
         val point = Point()
         display!!.getRealSize(point)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
-        snapshotor.startCamera()
+        snapshotor.startCameraWithAnalysis()
 
         exam_page_finishTextView.visibility = View.INVISIBLE
 
@@ -66,7 +66,7 @@ class ExamPage : AppCompatActivity() {
     private fun checkNowTesting() {
         Thread {
             while (isTesting) {
-                var bytes = CoroutineClient.getInstance().readTest()
+                var bytes = Client.getInstance().readData()
                 var jsonData = JSONObject(String(bytes))
                 if (jsonData.getString("data") == "ok") {
                     isTesting = false
@@ -93,6 +93,6 @@ class ExamPage : AppCompatActivity() {
         super.onDestroy()
         snapshotor.destroy()
         imageClient.destroy()
-        CoroutineClient.getInstance().disconnect()
+        Client.getInstance().disconnect()
     }
 }

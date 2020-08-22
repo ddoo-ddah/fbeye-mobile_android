@@ -9,11 +9,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.fveye.network.CoroutineClient
+import com.fveye.network.Client
 import com.fveye.pages.QrChecker
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.util.*
 import kotlin.system.exitProcess
 
 //TODO 다음주 할 일
@@ -57,14 +55,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        CoroutineClient.getInstance()
+        Client.getInstance()
 
         if (!checkPermissionIsGranted()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
 
         main_access_button.setOnClickListener {
-            CoroutineClient.getInstance().startClient()
+            Client.getInstance().startClient()
             val intent = Intent(this, QrChecker::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)

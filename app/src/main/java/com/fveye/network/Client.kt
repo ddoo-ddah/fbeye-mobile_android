@@ -1,70 +1,27 @@
 package com.fveye.network
 
 import android.annotation.SuppressLint
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.InputStream
+import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
-import java.util.*
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLException
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.X509TrustManager
-import kotlin.reflect.KFunction
 
-/**
-{
-"type": "res",
-"data": "ok"
-}
-
-{
-"type": "err",
-"data": 404
-}
-
-{
-"type": "btn",
-"data": [
-{
-"x": 100,
-"y": 200
-},
-{
-"x": 200,
-"y": 100
-}
-]
-}
-
-{
-"type": "eye",
-"data": "아이트래킹값"
-}
-
-EYE1234567890 (아이트래킹)
-AUTasdfzxcvqwer (qr 코드)
-ERR12345 (에러 코드)
-TES1start (테스트)
-RESdesktopOk (pc 연동)
- */
-
-class CoroutineClient private constructor() {
+class Client private constructor() {
 
     companion object {
-        private var instance: CoroutineClient? = null
-        val eyeTrackingIdentifier = "EYE"
-        val qrIdentifier = "AUT"
-        val errorIdentifier = "ERR"
-        val examIdentifier = "TES"
-        val pcResponseIdentifier = "RES"
+        private var instance: Client? = null
 
-        fun getInstance(): CoroutineClient =
+        fun getInstance(): Client =
                 instance ?: synchronized(this) {
-                    instance ?: CoroutineClient().also {
+                    instance ?: Client().also {
                         instance = it
                     }
                 }
@@ -78,7 +35,6 @@ class CoroutineClient private constructor() {
         connectToServer()
     }
 
-    //Thread도 가능
     private fun connectToServer() {
         runBlocking {
             withContext(Dispatchers.IO) {
@@ -114,33 +70,48 @@ class CoroutineClient private constructor() {
                 put("type", type)
                 put("data", data)
             }
-            client.outputStream.apply {
-                write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
-                flush()
-                close()
+            try{
+                client.outputStream.apply {
+                    write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                    flush()
+                    close()
+                }
+            }catch (e: SSLException){
+                return@runBlocking
+            }catch (e1 : SocketException){
+                return@runBlocking
             }
         }
     }
 
-    fun readTest() : ByteArray{
+    fun readData(): ByteArray {
+        if (!client.isConnected || client.isClosed) {
+            connectToServer()
+        }
         return readToBuffer(client.inputStream)
     }
 
     @Synchronized
     private fun readToBuffer(inputStream: InputStream): ByteArray {
-        if (!client.isConnected) {
-            connectToServer()
+        return try{
+            var input = ByteArray(40)
+            inputStream.apply {
+                read(input)
+                close()
+            }
+            input
         }
-        var input = ByteArray(40)
-        inputStream.apply {
-            read(input)
-            close()
+        catch (e: SSLException){
+            val errorJson = JSONObject()
+            errorJson.apply {
+                put("type", "ERR")
+                put("data", "client is not connected")
+            }.run { toString().toByteArray() }.also { client.close() }
         }
-        return input
     }
 
     fun disconnect() {
-        if (::client.isLateinit){
+        if (::client.isLateinit) {
             runBlocking {
                 withContext(Dispatchers.IO) {
                     client.close()
