@@ -17,6 +17,7 @@ import com.fveye.network.Client
 import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.testing_page_layout.*
 import org.json.JSONObject
+import java.util.concurrent.Executors
 
 @RequiresApi(Build.VERSION_CODES.R)
 class ExamPage : AppCompatActivity() {
@@ -24,7 +25,7 @@ class ExamPage : AppCompatActivity() {
     private var isTesting = true
     private val imageClient = ImageClient()
     private lateinit var snapshotor: Snapshotor
-
+    private val executor = Executors.newFixedThreadPool(2)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +41,7 @@ class ExamPage : AppCompatActivity() {
         exam_page_finishTextView.visibility = View.INVISIBLE
 
         hideSystemUI()
-        checkNowTesting()
-        sendImage()
+        executor.submit(this::checkNowTesting)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -60,33 +60,30 @@ class ExamPage : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         imageClient.startClient()
+        executor.submit(this::sendImage)
     }
 
     //TODO while , if 순서가 바뀔 가능성이 있음 - 자바 최적화 문제 - isTesting이 변경 안될 수 있음
     // * 고쳐야됨
     private fun checkNowTesting() {
-        Thread {
-            while (isTesting) {
-                var bytes = Client.getInstance().readData()
-                var jsonData = JSONObject(String(bytes))
-                if (jsonData.getString("data") == "ok") {
-                    isTesting = false
-                    imageClient.destroy()
-                    runOnUiThread {
-                        exam_page_finishTextView.visibility = View.VISIBLE
-                    }
+        while (isTesting) {
+            var bytes = Client.getInstance().readData()
+            var jsonData = JSONObject(String(bytes))
+            if (jsonData.getString("data") == "ok") {
+                isTesting = false
+                imageClient.destroy()
+                runOnUiThread {
+                    exam_page_finishTextView.visibility = View.VISIBLE
                 }
-
             }
-        }.start()
+
+        }
     }
 
-    private fun sendImage(){
-        Thread{
-            while(isTesting){
-                imageClient.write(exam_page_preivew.bitmap)
-            }
-        }.start()
+    private fun sendImage() {
+        while (isTesting) {
+            imageClient.write(exam_page_preivew.bitmap)
+        }
     }
 
     private fun hideSystemUI() {
@@ -102,6 +99,7 @@ class ExamPage : AppCompatActivity() {
         super.onDestroy()
         snapshotor.destroy()
         imageClient.destroy()
+        executor.shutdownNow()
         Client.getInstance().disconnect()
     }
 }
