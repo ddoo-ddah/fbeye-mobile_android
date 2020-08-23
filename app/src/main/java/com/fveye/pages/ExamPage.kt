@@ -41,6 +41,7 @@ class ExamPage : AppCompatActivity() {
 
         hideSystemUI()
         checkNowTesting()
+        sendImage()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -75,6 +76,14 @@ class ExamPage : AppCompatActivity() {
                         exam_page_finishTextView.visibility = View.VISIBLE
                     }
                 }
+
+            }
+        }.start()
+    }
+
+    private fun sendImage(){
+        Thread{
+            while(isTesting){
                 imageClient.write(exam_page_preivew.bitmap)
             }
         }.start()

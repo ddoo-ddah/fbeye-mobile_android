@@ -42,6 +42,15 @@ import kotlin.system.exitProcess
  * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
 */
 
+
+//TODO 서버 연결 k function 넘기기
+// binary 으로 도오ㅗ오오ㅗ전  base64를 용량 커짐
+// network 통신 관련
+// 문서화 다 같이 모여서 할 거임
+// 디자인 -- splash screen 메인화면 -- 맨 나중에 시간 남으면
+// 눈 게이저 bitmap으로 넘어오는거 받아서 리사이징 후 보내기
+
+
 class MainActivity : AppCompatActivity() {
 
     companion object {
