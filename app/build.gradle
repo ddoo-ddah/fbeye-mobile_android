@@ -52,6 +52,7 @@ dependencies {
     implementation('io.socket:socket.io-client:1.0.0') {
         exclude group: 'org.json', module: 'json'
     }
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.0-rc"
 }
 repositories {
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }

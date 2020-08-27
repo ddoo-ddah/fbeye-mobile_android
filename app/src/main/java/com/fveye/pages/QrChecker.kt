@@ -31,6 +31,7 @@ class QrChecker : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
+        Client.getInstance().startClient()
         sendQrData()
         checkOk()
     }

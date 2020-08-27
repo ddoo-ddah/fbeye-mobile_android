@@ -1,7 +1,6 @@
 package com.fveye.network
 
 import android.annotation.SuppressLint
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -72,22 +71,22 @@ class Client private constructor() {
                 put("type", type)
                 put("data", data)
             }
-            try{
+            try {
                 client.outputStream.apply {
                     write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
                     flush()
                     close()
                 }
-            }catch (e: SSLException){
+            } catch (e: SSLException) {
                 return@runBlocking
-            }catch (e1 : SocketException){
+            } catch (e1: SocketException) {
                 return@runBlocking
             }
         }
     }
 
     fun readData(): ByteArray {
-        if (!client.isConnected || client.isClosed) {
+        if (::client.isLateinit) {
             connectToServer()
         }
         return readToBuffer(client.inputStream)
@@ -95,15 +94,14 @@ class Client private constructor() {
 
     @Synchronized
     private fun readToBuffer(inputStream: InputStream): ByteArray {
-        return try{
+        return try {
             var input = ByteArray(40)
             inputStream.apply {
                 read(input)
                 close()
             }
             input
-        }
-        catch (e: SSLException){
+        } catch (e: SSLException) {
             val errorJson = JSONObject()
             errorJson.apply {
                 put("type", "ERR")
