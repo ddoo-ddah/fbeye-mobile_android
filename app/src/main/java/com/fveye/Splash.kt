@@ -56,7 +56,7 @@ class Splash : AppCompatActivity() {
 
     companion object {
         private val PERMISSIONS = arrayOf(android.Manifest.permission.INTERNET, android.Manifest.permission.ACCESS_NETWORK_STATE,
-                android.Manifest.permission.CAMERA, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                android.Manifest.permission.CAMERA, android.Manifest.permission.WAKE_LOCK)
         private const val REQUEST_CODE = 1
     }
 
