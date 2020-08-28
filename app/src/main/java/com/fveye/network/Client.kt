@@ -37,33 +37,33 @@ class Client private constructor() {
         connectToServer()
     }
 
-    private fun connectToServer() {
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                val trustManager = arrayOf(object : X509TrustManager {
-                    @SuppressLint("TrustAllX509TrustManager")
-                    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                    }
+    private fun connectToServer() =
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    val trustManager = arrayOf(object : X509TrustManager {
+                        @SuppressLint("TrustAllX509TrustManager")
+                        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+                        }
 
-                    @SuppressLint("TrustAllX509TrustManager")
-                    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                    }
+                        @SuppressLint("TrustAllX509TrustManager")
+                        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+                        }
 
-                    override fun getAcceptedIssuers(): Array<X509Certificate> {
-                        return arrayOf()
+                        override fun getAcceptedIssuers(): Array<X509Certificate> {
+                            return arrayOf()
+                        }
+                    })
+                    val sslContext = SSLContext.getInstance("TLSv1.2").apply {
+                        init(null, trustManager, null)
                     }
-                })
-                val sslContext = SSLContext.getInstance("TLSv1.2").apply {
-                    init(null, trustManager, null)
+                    client = sslContext.socketFactory.createSocket(ip, port) as SSLSocket
+                    client!!.run { startHandshake() }
                 }
-                client = sslContext.socketFactory.createSocket(ip, port) as SSLSocket
-                client!!.run { startHandshake() }
             }
-        }
-    }
+
 
     fun write(type: String, data: String) {
-        if (!client!!.isConnected && Objects.isNull(client)) {
+        if (!client!!.isConnected || Objects.isNull(client)) {
             connectToServer()
         }
         runBlocking {
@@ -87,7 +87,7 @@ class Client private constructor() {
     }
 
     fun readData(): ByteArray {
-        if (!client!!.isConnected && Objects.isNull(client)) {
+        if (!client!!.isConnected || Objects.isNull(client) || client!!.isClosed) {
             connectToServer()
         }
         return readToBuffer(client!!.inputStream)
@@ -102,7 +102,7 @@ class Client private constructor() {
                 close()
             }
             input
-        } catch (e: SSLException) {
+        } catch (e: Exception) {
             val errorJson = JSONObject()
             errorJson.apply {
                 put("type", "ERR")
