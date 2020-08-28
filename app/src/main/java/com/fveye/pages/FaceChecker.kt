@@ -1,17 +1,28 @@
 package com.fveye.pages
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PowerManager
 import androidx.appcompat.app.AppCompatActivity
 import com.fveye.R
 import com.fveye.network.Client
 import org.json.JSONObject
+import java.util.*
 
 class FaceChecker : AppCompatActivity() {
+
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.face_checker_layout)
+
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                acquire()
+            }
+        }
 
         waitingForStart()
     }
@@ -30,5 +41,12 @@ class FaceChecker : AppCompatActivity() {
             startActivity(intent)
             finish()
         }.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(!Objects.isNull(wakeLock)){
+            wakeLock!!.release()
+        }
     }
 }

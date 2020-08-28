@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
@@ -17,6 +18,7 @@ import com.fveye.network.Client
 import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.testing_page_layout.*
 import org.json.JSONObject
+import java.util.*
 import java.util.concurrent.Executors
 
 @RequiresApi(Build.VERSION_CODES.R)
@@ -26,11 +28,17 @@ class ExamPage : AppCompatActivity() {
     private val imageClient = ImageClient()
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(2)
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                acquire()
+            }
+        }
 
         val display: Display? = this.display
         val point = Point()
@@ -97,6 +105,9 @@ class ExamPage : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if(!Objects.isNull(wakeLock)){
+            wakeLock!!.release()
+        }
         snapshotor.destroy()
         imageClient.destroy()
         executor.shutdownNow()

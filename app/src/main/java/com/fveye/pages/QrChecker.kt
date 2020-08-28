@@ -1,9 +1,11 @@
 package com.fveye.pages
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +15,7 @@ import com.fveye.feature.Snapshotor
 import com.fveye.network.Client
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import org.json.JSONObject
+import java.util.*
 
 /**
  * 테스트 페이지 순서
@@ -27,10 +30,16 @@ import org.json.JSONObject
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                acquire()
+            }
+        }
         Client.getInstance().startClient()
         sendQrData()
         checkOk()
@@ -62,6 +71,9 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if(!Objects.isNull(wakeLock)){
+            wakeLock!!.release()
+        }
         snapshotor.destroy()
     }
 }
