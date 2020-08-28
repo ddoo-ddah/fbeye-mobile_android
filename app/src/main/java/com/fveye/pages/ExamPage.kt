@@ -35,7 +35,7 @@ class ExamPage : AppCompatActivity() {
         setContentView(R.layout.testing_page_layout)
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::ExamWakeLock").apply {
                 acquire()
             }
         }

@@ -19,7 +19,7 @@ class FaceChecker : AppCompatActivity() {
         setContentView(R.layout.face_checker_layout)
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::FaceWakeLock").apply {
                 acquire()
             }
         }

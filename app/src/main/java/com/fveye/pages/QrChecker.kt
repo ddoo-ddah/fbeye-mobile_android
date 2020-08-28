@@ -36,7 +36,7 @@ class QrChecker : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::QrWakeLock").apply {
                 acquire()
             }
         }
