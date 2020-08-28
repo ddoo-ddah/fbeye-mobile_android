@@ -9,6 +9,7 @@ import java.io.InputStream
 import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
+import java.util.*
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLSocket
@@ -28,9 +29,9 @@ class Client private constructor() {
                 }
     }
 
-    private val IP = "192.168.200.144"
-    private val PORT = 10101
-    private lateinit var client: SSLSocket
+    private val ip = "192.168.200.144"
+    private val port = 10101
+    private var client: SSLSocket? = null
 
     fun startClient() {
         connectToServer()
@@ -55,14 +56,14 @@ class Client private constructor() {
                 val sslContext = SSLContext.getInstance("TLSv1.2").apply {
                     init(null, trustManager, null)
                 }
-                client = sslContext.socketFactory.createSocket(IP, PORT) as SSLSocket
-                client.run { startHandshake() }
+                client = sslContext.socketFactory.createSocket(ip, port) as SSLSocket
+                client!!.run { startHandshake() }
             }
         }
     }
 
     fun write(type: String, data: String) {
-        if (!client.isConnected) {
+        if (!client!!.isConnected && Objects.isNull(client)) {
             connectToServer()
         }
         runBlocking {
@@ -72,7 +73,7 @@ class Client private constructor() {
                 put("data", data)
             }
             try {
-                client.outputStream.apply {
+                client!!.outputStream.apply {
                     write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
                     flush()
                     close()
@@ -86,16 +87,16 @@ class Client private constructor() {
     }
 
     fun readData(): ByteArray {
-        if (::client.isLateinit) {
+        if (!client!!.isConnected && Objects.isNull(client)) {
             connectToServer()
         }
-        return readToBuffer(client.inputStream)
+        return readToBuffer(client!!.inputStream)
     }
 
     @Synchronized
     private fun readToBuffer(inputStream: InputStream): ByteArray {
         return try {
-            var input = ByteArray(40)
+            val input = ByteArray(40)
             inputStream.apply {
                 read(input)
                 close()
@@ -106,15 +107,15 @@ class Client private constructor() {
             errorJson.apply {
                 put("type", "ERR")
                 put("data", "client is not connected")
-            }.run { toString().toByteArray() }.also { client.close() }
+            }.run { toString().toByteArray() }.also { client!!.close() }
         }
     }
 
     fun disconnect() {
-        if (::client.isLateinit) {
+        if (client!!.isConnected && !Objects.isNull(client)) {
             runBlocking {
                 withContext(Dispatchers.IO) {
-                    client.close()
+                    client!!.close()
                 }
             }
         }
