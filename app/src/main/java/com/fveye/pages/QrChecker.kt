@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -35,15 +36,22 @@ class QrChecker : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
+
+        //가끔 서버에 접속을 2번 혹은 그 이상 접속 해서 null check 함
+        if(Objects.isNull(savedInstanceState)){
+            Client.getInstance().startClient()
+        }
+
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::QrWakeLock").apply {
                 acquire()
             }
         }
-        Client.getInstance().startClient()
+
         sendQrData()
         checkOk()
     }
+
 
     private fun sendQrData() {
         val display: Display? = this.display

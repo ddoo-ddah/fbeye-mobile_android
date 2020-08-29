@@ -1,6 +1,7 @@
 package com.fveye.network
 
 import android.annotation.SuppressLint
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -10,6 +11,7 @@ import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLSocket
@@ -33,33 +35,36 @@ class Client private constructor() {
     private val port = 10101
     private var client: SSLSocket? = null
 
+    //TODO Thread 로 갈아엎기
+
     fun startClient() {
         connectToServer()
     }
 
-    private fun connectToServer() =
-            runBlocking {
-                withContext(Dispatchers.IO) {
-                    val trustManager = arrayOf(object : X509TrustManager {
-                        @SuppressLint("TrustAllX509TrustManager")
-                        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                        }
-
-                        @SuppressLint("TrustAllX509TrustManager")
-                        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                        }
-
-                        override fun getAcceptedIssuers(): Array<X509Certificate> {
-                            return arrayOf()
-                        }
-                    })
-                    val sslContext = SSLContext.getInstance("TLSv1.2").apply {
-                        init(null, trustManager, null)
+    private fun connectToServer() {
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                val trustManager = arrayOf(object : X509TrustManager {
+                    @SuppressLint("TrustAllX509TrustManager")
+                    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                     }
-                    client = sslContext.socketFactory.createSocket(ip, port) as SSLSocket
-                    client!!.run { startHandshake() }
+
+                    @SuppressLint("TrustAllX509TrustManager")
+                    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+                    }
+
+                    override fun getAcceptedIssuers(): Array<X509Certificate> {
+                        return arrayOf()
+                    }
+                })
+                val sslContext = SSLContext.getInstance("TLSv1.2").apply {
+                    init(null, trustManager, null)
                 }
+                client = sslContext.socketFactory.createSocket(ip, port) as SSLSocket
+                client!!.run { startHandshake() }
             }
+        }
+    }
 
 
     fun write(type: String, data: String) {

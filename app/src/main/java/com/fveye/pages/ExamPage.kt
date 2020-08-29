@@ -1,6 +1,7 @@
 package com.fveye.pages
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
@@ -51,8 +52,6 @@ class ExamPage : AppCompatActivity() {
         hideSystemUI()
         executor.submit(this::checkNowTesting)
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
                 if (isTesting) {
@@ -88,9 +87,12 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
+    private var bitmap : Bitmap? = null
+
     private fun sendImage() {
         while (isTesting) {
-            imageClient.write(exam_page_preivew.bitmap)
+            bitmap = exam_page_preivew.bitmap
+            imageClient.write(bitmap)
         }
     }
 
