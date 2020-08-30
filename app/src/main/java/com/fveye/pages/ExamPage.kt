@@ -75,13 +75,6 @@ class ExamPage : AppCompatActivity() {
 
     private fun connectToImageServer() {
         // get uri from qrData and connect image server
-        val intent = Intent()
-        val qrString = intent.getStringExtra("QR")
-        if (Objects.isNull(qrString)) {
-            return
-        }
-        val qrData = JSONObject(qrString)
-        qrData.get("")
         val uri = URI("")
         imageClient = ImageClient()
         imageClient!!.startClient(uri)

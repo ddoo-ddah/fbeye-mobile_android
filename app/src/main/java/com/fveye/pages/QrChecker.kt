@@ -17,15 +17,6 @@ import kotlinx.android.synthetic.main.qr_check_layout.*
 import org.json.JSONObject
 import java.util.*
 
-/**
- * 테스트 페이지 순서
- * 1. QrCheckPage = 앱이 실행되자마자 나타날 페이지
- * 2. Check Face = 얼굴 인식
- * 3. Check EyeTracking = 트래킹 체크
- * 4. 시험 시작 전 대기 회면
- * 5. 시험 시작 후 pip 검은화면
- */
-
 @RequiresApi(Build.VERSION_CODES.R)
 class QrChecker : AppCompatActivity() {
 
@@ -68,9 +59,7 @@ class QrChecker : AppCompatActivity() {
                     break
                 }
             }
-            var jsonObject = snapshotor.getQrData()
             val intent = Intent(this, FaceChecker::class.java)
-            intent.putExtra("QR", jsonObject.toString())
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)
             finish()
