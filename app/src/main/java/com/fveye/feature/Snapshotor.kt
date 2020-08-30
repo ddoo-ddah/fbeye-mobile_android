@@ -21,7 +21,10 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.util.*
 import java.util.concurrent.Executors
+import kotlin.reflect.KFunction
 
 
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
@@ -33,6 +36,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     private val qrScanner = QrScanner()
     private lateinit var orientationEventListener: OrientationEventListener
+    private var jsonData : JSONObject? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
@@ -60,7 +64,14 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             val singleExecutor = Executors.newSingleThreadExecutor()
-
+//
+//            type: 'AUT',
+//            data: {
+//            examCode: 'abc123',
+//            userCode: '123abc',
+//            authCode: '1q2w3e4r'
+//        }
+//
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
@@ -73,7 +84,9 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                 result.addOnSuccessListener { barcodes ->
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
-                                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
+//                                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
+                                            jsonData = JSONObject(barcodes[0].displayValue.toString())
+                                            Log.d("Data", jsonData!!.get("authCode").toString())
                                         }
                                     }
                                     imageProxy.close()
@@ -95,6 +108,13 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             }
 
         }, ContextCompat.getMainExecutor(context))
+    }
+
+    fun getQrData(): JSONObject?{
+        if (Objects.isNull(jsonData)){
+            return null
+        }
+        return jsonData
     }
 
     fun destroy() {

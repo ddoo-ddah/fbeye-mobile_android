@@ -50,7 +50,9 @@ import kotlinx.coroutines.launch
 // 디자인 -- splash screen 메인화면 -- 맨 나중에 시간 남으면
 // 눈 게이저 bitmap으로 넘어오는거 받아서 리사이징 후 보내기
 
-//TODO MainActivity 죽이고 바로 시작
+
+//TODO 눈, 카메라 이미지 요청을 하면 이미지를 보내게 끔 - 월요일 전까지
+// 구조 단순화 및 어플 합치기 -- 월요일 오후 같이
 
 class Splash : AppCompatActivity() {
 

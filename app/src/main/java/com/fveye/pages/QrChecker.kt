@@ -6,7 +6,6 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.util.Log
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -52,7 +51,6 @@ class QrChecker : AppCompatActivity() {
         checkOk()
     }
 
-
     private fun sendQrData() {
         val display: Display? = this.display
         val point = Point()
@@ -70,7 +68,9 @@ class QrChecker : AppCompatActivity() {
                     break
                 }
             }
+            var jsonObject = snapshotor.getQrData()
             val intent = Intent(this, FaceChecker::class.java)
+            intent.putExtra("QR", jsonObject.toString())
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)
             finish()

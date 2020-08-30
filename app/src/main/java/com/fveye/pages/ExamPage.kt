@@ -1,6 +1,7 @@
 package com.fveye.pages
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.os.Build
@@ -19,22 +20,28 @@ import com.fveye.network.Client
 import com.fveye.network.ImageClient
 import kotlinx.android.synthetic.main.testing_page_layout.*
 import org.json.JSONObject
+import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
 
 @RequiresApi(Build.VERSION_CODES.R)
 class ExamPage : AppCompatActivity() {
 
-    private var isTesting = true
-    private val imageClient = ImageClient()
+    private var isRunning = true
+    private var imageClient : ImageClient? = null
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(2)
     private var wakeLock: PowerManager.WakeLock? = null
+    private var bitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+
+
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::ExamWakeLock").apply {
                 acquire()
@@ -50,11 +57,11 @@ class ExamPage : AppCompatActivity() {
         exam_page_finishTextView.visibility = View.INVISIBLE
 
         hideSystemUI()
-        executor.submit(this::checkNowTesting)
+        executor.submit(this::workWhileExam)
 
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                if (isTesting) {
+                if (isRunning) {
                     Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
                     hideSystemUI()
                 } else {
@@ -66,33 +73,59 @@ class ExamPage : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        imageClient.startClient()
-        executor.submit(this::sendImage)
+        connectToImageServer()
     }
 
-    //TODO while , if 순서가 바뀔 가능성이 있음 - 자바 최적화 문제 - isTesting이 변경 안될 수 있음
-    // * 고쳐야됨
-    private fun checkNowTesting() {
-        while (isTesting) {
-            var bytes = Client.getInstance().readData()
-            var jsonData = JSONObject(String(bytes))
-            if (jsonData.getString("data") == "ok") {
-                isTesting = false
-                imageClient.destroy()
-                runOnUiThread {
-                    exam_page_finishTextView.visibility = View.VISIBLE
-                }
-            }
+    private fun connectToImageServer(){
+        // get uri from qrData and connect image server
+        val intent = Intent()
+        val qrString = intent.getStringExtra("QR")
+        if (Objects.isNull(qrString)){
+            return
+        }
+        val qrData = JSONObject(qrString)
+        qrData.get("")
+        val uri = URI("")
+        imageClient = ImageClient()
+        imageClient!!.startClient(uri)
+    }
 
+
+    private fun workWhileExam() {
+        while (isRunning) {
+            val bytes = Client.getInstance().readData()
+            val jsonData = JSONObject(String(bytes))
+            workWithType(jsonData)
         }
     }
 
-    private var bitmap : Bitmap? = null
+    private fun workWithType(json: JSONObject) {
+        val data = json.get("data").toString()
+        when (json.get("type")) {
+            "RES" -> finishExam(data)
+            "REQ" -> sendImage()
+        }
+    }
+
+    private fun finishExam(isFinish : String) {
+        if(!Objects.isNull(imageClient)){
+            imageClient!!.destroy()
+        }
+        if(isFinish == "ok"){
+            isRunning = false
+            runOnUiThread {
+                exam_page_finishTextView.visibility = View.VISIBLE
+            }
+        }
+    }
 
     private fun sendImage() {
-        while (isTesting) {
+        if(Objects.isNull(imageClient)){
+            return
+        }
+        executor.execute{
             bitmap = exam_page_preivew.bitmap
-            imageClient.write(bitmap)
+            imageClient!!.write(bitmap)
         }
     }
 
@@ -107,11 +140,13 @@ class ExamPage : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(!Objects.isNull(wakeLock)){
+        if (!Objects.isNull(wakeLock)) {
             wakeLock!!.release()
         }
+        if(!Objects.isNull(imageClient)){
+            imageClient!!.destroy()
+        }
         snapshotor.destroy()
-        imageClient.destroy()
         executor.shutdownNow()
         Client.getInstance().disconnect()
     }

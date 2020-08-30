@@ -37,6 +37,7 @@ class FaceChecker : AppCompatActivity() {
                 }
             }
             val intent = Intent(this, ExamPage::class.java)
+            intent.putExtra("QR", intent.getStringExtra("QR"))
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)
             finish()
