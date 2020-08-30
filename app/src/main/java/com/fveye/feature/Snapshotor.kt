@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.reflect.KFunction
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.KFunction1
 
 
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
@@ -36,7 +37,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     private val qrScanner = QrScanner()
     private lateinit var orientationEventListener: OrientationEventListener
-    private var jsonData : JSONObject? = null
+    private var setQrData : KFunction1<JSONObject, Unit>? = null
+    private var isConveyed  = AtomicBoolean(false)
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
@@ -85,7 +87,10 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
-                                            jsonData = JSONObject(barcodes[0].displayValue.toString())
+                                            if(!Objects.isNull(setQrData) && !isConveyed.get()){
+                                                setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
+                                                isConveyed.set(true)
+                                            }
                                         }
                                     }
                                     imageProxy.close()
@@ -109,11 +114,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun getQrData(): JSONObject?{
-        if (Objects.isNull(jsonData)){
-            return null
-        }
-        return jsonData
+    fun setQrCallback(f: KFunction1<JSONObject, Unit>){
+        this.setQrData = f
     }
 
     fun destroy() {

@@ -1,7 +1,6 @@
 package com.fveye.pages
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.os.Build
@@ -30,9 +29,10 @@ class ExamPage : AppCompatActivity() {
     private var isRunning = true
     private var imageClient: ImageClient? = null
     private lateinit var snapshotor: Snapshotor
-    private val executor = Executors.newFixedThreadPool(2)
+    private val executor = Executors.newFixedThreadPool(3)
     private var wakeLock: PowerManager.WakeLock? = null
     private var bitmap: Bitmap? = null
+    private var qrData :JSONObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +50,7 @@ class ExamPage : AppCompatActivity() {
         display!!.getRealSize(point)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
         snapshotor.startCameraWithAnalysis()
+        snapshotor.setQrCallback(this::setQrData)
 
         exam_page_finishTextView.visibility = View.INVISIBLE
 
@@ -70,10 +71,19 @@ class ExamPage : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        connectToImageServer()
+        executor.execute(this::connectToImageServer)
+    }
+
+    private fun setQrData(data : JSONObject){
+        this.qrData = data
     }
 
     private fun connectToImageServer() {
+        while(isRunning){
+            if (!Objects.isNull(qrData)){
+                break
+            }
+        }
         // get uri from qrData and connect image server
         val uri = URI("")
         imageClient = ImageClient()
