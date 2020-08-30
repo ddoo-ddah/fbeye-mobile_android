@@ -49,8 +49,9 @@ class ExamPage : AppCompatActivity() {
         val point = Point()
         display!!.getRealSize(point)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
-        snapshotor.startCameraWithAnalysis()
-        snapshotor.setQrCallback(this::setQrData)
+        snapshotor.apply {
+            setQrCallback(this@ExamPage::setQrData)
+        }.run { startCameraWithAnalysis() }
 
         exam_page_finishTextView.visibility = View.INVISIBLE
 
