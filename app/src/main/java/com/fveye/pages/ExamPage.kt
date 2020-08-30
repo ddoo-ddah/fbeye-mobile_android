@@ -28,7 +28,7 @@ import java.util.concurrent.Executors
 class ExamPage : AppCompatActivity() {
 
     private var isRunning = true
-    private var imageClient : ImageClient? = null
+    private var imageClient: ImageClient? = null
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(2)
     private var wakeLock: PowerManager.WakeLock? = null
@@ -37,9 +37,6 @@ class ExamPage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
-
-
-
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
@@ -76,11 +73,11 @@ class ExamPage : AppCompatActivity() {
         connectToImageServer()
     }
 
-    private fun connectToImageServer(){
+    private fun connectToImageServer() {
         // get uri from qrData and connect image server
         val intent = Intent()
         val qrString = intent.getStringExtra("QR")
-        if (Objects.isNull(qrString)){
+        if (Objects.isNull(qrString)) {
             return
         }
         val qrData = JSONObject(qrString)
@@ -89,7 +86,6 @@ class ExamPage : AppCompatActivity() {
         imageClient = ImageClient()
         imageClient!!.startClient(uri)
     }
-
 
     private fun workWhileExam() {
         while (isRunning) {
@@ -107,11 +103,8 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
-    private fun finishExam(isFinish : String) {
-        if(!Objects.isNull(imageClient)){
-            imageClient!!.destroy()
-        }
-        if(isFinish == "ok"){
+    private fun finishExam(isFinish: String) {
+        if (isFinish == "ok") {
             isRunning = false
             runOnUiThread {
                 exam_page_finishTextView.visibility = View.VISIBLE
@@ -120,10 +113,10 @@ class ExamPage : AppCompatActivity() {
     }
 
     private fun sendImage() {
-        if(Objects.isNull(imageClient)){
+        if (Objects.isNull(imageClient)) {
             return
         }
-        executor.execute{
+        executor.execute {
             bitmap = exam_page_preivew.bitmap
             imageClient!!.write(bitmap)
         }
@@ -143,7 +136,7 @@ class ExamPage : AppCompatActivity() {
         if (!Objects.isNull(wakeLock)) {
             wakeLock!!.release()
         }
-        if(!Objects.isNull(imageClient)){
+        if (!Objects.isNull(imageClient)) {
             imageClient!!.destroy()
         }
         snapshotor.destroy()

@@ -84,9 +84,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                 result.addOnSuccessListener { barcodes ->
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
-//                                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
+                                            Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
                                             jsonData = JSONObject(barcodes[0].displayValue.toString())
-                                            Log.d("Data", jsonData!!.get("authCode").toString())
                                         }
                                     }
                                     imageProxy.close()
