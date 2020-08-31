@@ -1,8 +1,6 @@
 <resources>
-    <string name="app_name">FVEye</string>
-    <string name="qr_check_explanation_text">Please Take a photo include qrCode</string>
-    <string name="main_access_button_text">Prepare Exam</string>
-    <string name="main_exit_button_text">Exit</string>
+    <string name="app_name">FBEye</string>
+    <string name="qr_check_explanation_text">QR을 인식시켜 주세요.</string>
     <string name="exam_page_finish_text">수고하셨습니다.</string>
     <string name="face_checker_text">모니터의 지시에 따라주세요.</string>
 </resources>

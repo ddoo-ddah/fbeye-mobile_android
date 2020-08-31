@@ -35,8 +35,6 @@ class Client private constructor() {
     private val port = 10101
     private var client: SSLSocket? = null
 
-    //TODO Thread 로 갈아엎기
-
     fun startClient() {
         connectToServer()
     }
@@ -66,6 +64,58 @@ class Client private constructor() {
         }
     }
 
+    fun writeEyeDataForTest(dataList : List<Float>){
+        if (!client!!.isConnected || Objects.isNull(client)) {
+            connectToServer()
+        }
+        runBlocking {
+            val jsonData = JSONObject()
+            jsonData.apply {
+                put("type", "eyeTest")
+                for(data in dataList){
+                    put("data", data.toDouble())
+                }
+            }
+            try {
+                client!!.outputStream.apply {
+                    write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                    flush()
+                    close()
+                }
+            } catch (e: SSLException) {
+                return@runBlocking
+            } catch (e1: SocketException) {
+                return@runBlocking
+            }
+        }
+    }
+
+
+    fun writeEyeData(dataList : List<Float>){
+        if (!client!!.isConnected || Objects.isNull(client)) {
+            connectToServer()
+        }
+        runBlocking {
+            val jsonData = JSONObject()
+            jsonData.apply {
+                put("type", "eye")
+                for(data in dataList){
+                    put("data", data.toDouble())
+                }
+            }
+            try {
+                client!!.outputStream.apply {
+                    write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                    flush()
+                    close()
+                }
+            } catch (e: SSLException) {
+                return@runBlocking
+            } catch (e1: SocketException) {
+                return@runBlocking
+            }
+        }
+    }
 
     fun write(type: String, data: String) {
         if (!client!!.isConnected || Objects.isNull(client)) {

@@ -2,18 +2,29 @@ package com.fveye.pages
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.view.Display
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import com.fbeye.EyeGazeFinder
 import com.fveye.R
+import com.fveye.feature.Snapshotor
 import com.fveye.network.Client
+import kotlinx.android.synthetic.main.face_checker_layout.*
+import kotlinx.android.synthetic.main.qr_check_layout.*
 import org.json.JSONObject
 import java.util.*
 
 class FaceChecker : AppCompatActivity() {
 
     private var wakeLock: PowerManager.WakeLock? = null
+    private lateinit var snapshotor: Snapshotor
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.face_checker_layout)
@@ -23,6 +34,11 @@ class FaceChecker : AppCompatActivity() {
                 acquire()
             }
         }
+
+        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
+        snapshotor.startFrontCamera(face_checker_preview)
+
+        EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeDataForTest)
 
         waitingForStart()
     }
@@ -48,5 +64,6 @@ class FaceChecker : AppCompatActivity() {
         if(!Objects.isNull(wakeLock)){
             wakeLock!!.release()
         }
+        snapshotor.destroy()
     }
 }

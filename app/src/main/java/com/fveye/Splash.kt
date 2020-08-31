@@ -7,52 +7,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.fbeye.EyeGazeFinder
 import com.fveye.pages.QrChecker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-
-//TODO 다음주 할 일
-/* *
- * 핸드폰은 조작을 하면 안됨 -- pc도 조작해야되는데 유저가 너무 힘듬
- * 다음화면으로 넘어가는거 자동화 처리
- * 전부 자동화로 넘어가야됨
- * 버튼이 있으면 안됨
- * 코루틴 안되면 그냥 thread
- * 스샷을 주기적으로 찍으면서 완료가 되면 다음 화면으로 자동으로 넘어가게끔 --> 동영상을 찍으면서 확인하는 거랑 비슷함
- * 가격 확인
- * 카메라 안정성 확보
- * 시험 시작 후 pip 검은화면 -- google 내부적 pip 쓰면 안됨 너무 작게나옴 youtube pip 사이즈 나옴 -- 확인 해보기 like 블루 라이트 필터
- * ------------------------ 1순위 자동화 ------------------------
- * ------------------------ 2순위 pip --------------------------
-*/
-
-//TODO
-// cameraX rotation 변경
-/* enum 쓰지 말 것 - 용량 늘어남
- * constraint layout guide line 사용, 비율 맘대로 조절 가능
- * oriantaion 변경
- * 실행 주기랑 실행 시간 실행 횟수 체크
- * ---------------사진을 여러장 찍어서 전송 --> data queue 넣고 보내고  -------------------
- * ---------------1순위 실행 주기랑 실행 시간 실행 횟수 체크 ------------------- --> 최대한 빨리 //오늘 안으로 보내기 - 어느부분이 어느정도 걸린다 가능한 상세히
- * ---------------2순위 완성도 높이기 (QRChecker, ExamPage, 화면 넘기기, 에러 핸들링) ------------------
- * ---------------3순위 서버연동 ----------------- 입출력 하는놈, 중간에서 연계해주는 놈 , interface 만들어서 상속받으면 데이터 받을 수 있게끔 (eventQueue 참고)
- * ---------------참고만 하라고  eyeTracker 붙이기 -------------------- (frontCamera 에 붙여야 됨, 가능한 한 원본 이미지 넘기기 - viewfinder 하나 깔고 안보이게 해서 넘기면됨)
-*/
-
-
-//TODO 서버 연결 k function 넘기기
-// binary 으로 도오ㅗ오오ㅗ전  base64를 용량 커짐
-// network 통신 관련
-// 문서화 다 같이 모여서 할 거임
-// 디자인 -- splash screen 메인화면 -- 맨 나중에 시간 남으면
-// 눈 게이저 bitmap으로 넘어오는거 받아서 리사이징 후 보내기
-
-
-//TODO 눈, 카메라 이미지 요청을 하면 이미지를 보내게 끔 - 월요일 전까지
-// 구조 단순화 및 어플 합치기 -- 월요일 오후 같이
 
 class Splash : AppCompatActivity() {
 
@@ -69,6 +29,8 @@ class Splash : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE)
         }
         else{
+            //모델 먼저 불러오기 시간이 좀 걸림
+            EyeGazeFinder.instance.init(assets.openFd("model.tflite"))
             start()
         }
     }

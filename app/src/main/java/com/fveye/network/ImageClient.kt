@@ -13,8 +13,6 @@ import java.util.concurrent.Executors
 
 class ImageClient {
 
-    //TODO fbeye.xyz/exams/supervise/시험코드 사용자가 입력한 시험코드로 접속
-
     private var client: io.socket.client.Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
     private var uri: URI? = null

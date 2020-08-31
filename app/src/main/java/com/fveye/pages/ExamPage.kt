@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
+import com.fbeye.EyeGazeFinder
 import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.Client
@@ -38,11 +39,14 @@ class ExamPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
+        EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeData)
+
         keepScreenOn()
 
         initSnapshotor()
 
         hideSystemUI()
+
         executor.submit(this::workWhileExam)
 
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
@@ -61,10 +65,13 @@ class ExamPage : AppCompatActivity() {
         val display: Display? = this.display
         val point = Point()
         display!!.getRealSize(point)
-        snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
+        snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner)
         snapshotor.apply {
             setQrCallback(this@ExamPage::setQrData)
-        }.run { startCameraWithAnalysis() }
+        }.run {
+            startCameraWithAnalysis(point, "exam")
+            startFrontCamera(exam_page_preivew_front)
+        }
     }
 
     private fun keepScreenOn() {

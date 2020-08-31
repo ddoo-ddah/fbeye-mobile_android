@@ -28,4 +28,14 @@
         android:clickable="false"
         />
 
+    <androidx.camera.view.PreviewView
+        android:id="@+id/exam_page_preivew_front"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="visible"
+        android:clickable="false"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

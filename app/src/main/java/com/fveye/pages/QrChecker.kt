@@ -46,8 +46,8 @@ class QrChecker : AppCompatActivity() {
         val display: Display? = this.display
         val point = Point()
         display!!.getRealSize(point)
-        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner, point)
-        snapshotor.startCameraWithAnalysis()
+        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
+        snapshotor.startCameraWithAnalysis(point, "test")
     }
 
     private fun checkOk() {
