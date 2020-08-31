@@ -40,13 +40,7 @@ class ExamPage : AppCompatActivity() {
 
         keepScreenOn()
 
-        val display: Display? = this.display
-        val point = Point()
-        display!!.getRealSize(point)
-        snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
-        snapshotor.apply {
-            setQrCallback(this@ExamPage::setQrData)
-        }.run { startCameraWithAnalysis() }
+        initSnapshotor()
 
         exam_page_finishTextView.visibility = View.INVISIBLE
 
@@ -63,6 +57,16 @@ class ExamPage : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun initSnapshotor(){
+        val display: Display? = this.display
+        val point = Point()
+        display!!.getRealSize(point)
+        snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner, point)
+        snapshotor.apply {
+            setQrCallback(this@ExamPage::setQrData)
+        }.run { startCameraWithAnalysis() }
     }
 
     private fun keepScreenOn() {
