@@ -32,18 +32,13 @@ class ExamPage : AppCompatActivity() {
     private val executor = Executors.newFixedThreadPool(3)
     private var wakeLock: PowerManager.WakeLock? = null
     private var bitmap: Bitmap? = null
-    private var qrData :JSONObject? = null
+    private var qrData: JSONObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::ExamWakeLock").apply {
-                acquire()
-            }
-        }
+        keepScreenOn()
 
         val display: Display? = this.display
         val point = Point()
@@ -70,18 +65,27 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
+    private fun keepScreenOn() {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::ExamWakeLock").apply {
+                acquire()
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         executor.execute(this::connectToImageServer)
     }
 
-    private fun setQrData(data : JSONObject){
+    private fun setQrData(data: JSONObject) {
         this.qrData = data
     }
 
     private fun connectToImageServer() {
-        while(isRunning){
-            if (!Objects.isNull(qrData)){
+        while (isRunning) {
+            if (!Objects.isNull(qrData)) {
                 break
             }
         }
