@@ -92,7 +92,10 @@ class ExamPage : AppCompatActivity() {
             }
         }
         // get uri from qrData and connect image server
-        val uri = URI("")
+        var ip = "fbeye.xyz/exams/supervise/"
+        val data = JSONObject(qrData!!.get("data").toString())
+        ip.plus(data.get("examCode").toString())
+        val uri = URI(ip)
         imageClient = ImageClient()
         imageClient!!.startClient(uri)
     }
