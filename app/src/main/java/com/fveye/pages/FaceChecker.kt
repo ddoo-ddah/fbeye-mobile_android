@@ -43,6 +43,7 @@ class FaceChecker : AppCompatActivity() {
         waitingForStart()
     }
 
+    //TODO ok사인 물어보고 바꾸기 = 만들고 알려준다고함
     private fun waitingForStart(){
         Thread{
             while (true) {

@@ -123,6 +123,7 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
+    //TODO ok사인 물어보고 바꾸기 = 만들고 알려준다고함
     private fun finishExam(isFinish: String) {
         if (isFinish == "ok") {
             isRunning = false

@@ -31,7 +31,7 @@ class Client private constructor() {
                 }
     }
 
-    private val ip = "192.168.200.144"
+    private val ip = "fbeye.xyz"
     private val port = 10101
     private var client: SSLSocket? = null
 
