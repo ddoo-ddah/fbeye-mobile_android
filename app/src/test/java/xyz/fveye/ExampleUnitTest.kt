@@ -1,4 +1,4 @@
-package com.fveye
+package xyz.fveye
 
 import org.junit.Assert
 import org.junit.Test
