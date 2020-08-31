@@ -1,7 +1,6 @@
-package com.fveye.network
+package xyz.fbeye.network
 
 import android.annotation.SuppressLint
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -11,7 +10,6 @@ import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.security.cert.X509Certificate
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLSocket

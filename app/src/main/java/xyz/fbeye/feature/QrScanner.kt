@@ -1,4 +1,4 @@
-package com.fveye.feature
+package xyz.fbeye.feature
 
 import android.annotation.SuppressLint
 import android.os.Build

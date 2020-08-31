@@ -1,4 +1,4 @@
-package com.fveye.pages
+package xyz.fbeye.pages
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -13,11 +13,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
-import com.fbeye.EyeGazeFinder
-import com.fveye.R
-import com.fveye.feature.Snapshotor
-import com.fveye.network.Client
-import com.fveye.network.ImageClient
+import xyz.fbeye.feature.EyeGazeFinder
+import xyz.fbeye.R
+import xyz.fbeye.feature.Snapshotor
+import xyz.fbeye.network.Client
+import xyz.fbeye.network.ImageClient
 import kotlinx.android.synthetic.main.testing_page_layout.*
 import org.json.JSONObject
 import java.net.URI

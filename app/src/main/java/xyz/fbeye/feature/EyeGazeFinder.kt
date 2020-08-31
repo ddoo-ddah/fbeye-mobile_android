@@ -1,4 +1,4 @@
-package com.fbeye
+package xyz.fbeye.feature
 
 import android.content.res.AssetFileDescriptor
 import android.graphics.*
