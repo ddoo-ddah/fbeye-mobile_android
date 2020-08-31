@@ -42,8 +42,6 @@ class ExamPage : AppCompatActivity() {
 
         initSnapshotor()
 
-        exam_page_finishTextView.visibility = View.INVISIBLE
-
         hideSystemUI()
         executor.submit(this::workWhileExam)
 
