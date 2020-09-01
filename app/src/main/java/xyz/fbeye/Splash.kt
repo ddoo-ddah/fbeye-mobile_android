@@ -1,4 +1,4 @@
-package com.fveye
+package xyz.fbeye
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,12 +7,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.fbeye.EyeGazeFinder
-import com.fveye.pages.QrChecker
+import xyz.fbeye.pages.QrChecker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.fbeye.feature.EyeGazeFinder
 
 class Splash : AppCompatActivity() {
 

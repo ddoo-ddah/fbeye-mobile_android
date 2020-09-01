@@ -1,4 +1,4 @@
-package com.fveye.feature
+package xyz.fbeye.feature
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -17,8 +17,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.fbeye.EyeGazeFinder
-import com.fveye.network.Client
+import xyz.fbeye.network.Client
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
