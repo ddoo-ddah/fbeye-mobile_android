@@ -57,11 +57,12 @@ class QrChecker : AppCompatActivity() {
             while (true) {
                 var bytes = Client.getInstance().readData()
                 var jsonData = JSONObject(String(bytes))
-                if (jsonData.getString("data") == "authOK") {
+//                Log.d("Server send", "json data = $jsonData")
+                if (jsonData.getString("data") == "authOk") {
                     break
                 }
             }
-            val intent = Intent(this, FaceChecker::class.java)
+            val intent = Intent(this, EyeChecker::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)
             finish()

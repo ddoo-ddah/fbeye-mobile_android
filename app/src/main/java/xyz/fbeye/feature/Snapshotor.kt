@@ -96,9 +96,10 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
                                     currentSize = barcodes.size
 
+
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
-                                            timerCheck(Client.getInstance()::write, Client.qrIdentifier, barcodes[0].displayValue.toString())
+                                            timerCheck(Client.getInstance()::write, "AUT", barcodes[0].displayValue.toString())
 
                                             if (!Objects.isNull(setQrData) && !isConveyed.get()) {
                                                 setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
@@ -138,11 +139,11 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             firstRotation = nextRotaion
             isFirst = false
             timer = timer(period = 1000) {
-                if (currentSize <= 0) {
-                    isFirst = false
-                    times = 0
-                    this.cancel()
-                }
+//                if (currentSize <= 0) {
+//                    isFirst = true
+//                    times = 0
+//                    this.cancel()
+//                }
                 if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
                     isFirst = true
                     times = 0
@@ -150,6 +151,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                 }
                 if (times == 5) {
                     write.invoke(qrIdentifier, data)
+                    Log.d("write Success", "qr read")
                     isFirst = true
                     times = 0
                     this.cancel()

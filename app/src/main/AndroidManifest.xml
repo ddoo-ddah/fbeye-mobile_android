@@ -26,7 +26,7 @@
         </activity>
 
         <activity android:name="xyz.fbeye.pages.QrChecker" />
-        <activity android:name="xyz.fbeye.pages.FaceChecker" />
+        <activity android:name="xyz.fbeye.pages.EyeChecker" />
         <activity android:name="xyz.fbeye.pages.ExamPage"/>
     </application>
 

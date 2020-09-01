@@ -8,16 +8,14 @@ import android.os.PowerManager
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
-import xyz.fbeye.feature.EyeGazeFinder
 import xyz.fbeye.R
 import xyz.fbeye.feature.Snapshotor
 import xyz.fbeye.network.Client
-import kotlinx.android.synthetic.main.face_checker_layout.*
-import kotlinx.android.synthetic.main.qr_check_layout.*
+import kotlinx.android.synthetic.main.eye_checker_layout.*
 import org.json.JSONObject
 import java.util.*
 
-class FaceChecker : AppCompatActivity() {
+class EyeChecker : AppCompatActivity() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private lateinit var snapshotor: Snapshotor
@@ -25,7 +23,7 @@ class FaceChecker : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.face_checker_layout)
+        setContentView(R.layout.eye_checker_layout)
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::FaceWakeLock").apply {
@@ -33,7 +31,7 @@ class FaceChecker : AppCompatActivity() {
             }
         }
 
-        snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
+        snapshotor = Snapshotor(this, face_checker_preview, this as LifecycleOwner)
         snapshotor.startFrontCamera(face_checker_preview)
 
         waitingForStart()
@@ -45,7 +43,7 @@ class FaceChecker : AppCompatActivity() {
             while (true) {
                 var bytes = Client.getInstance().readData()
                 var jsonData = JSONObject(String(bytes))
-                if (jsonData.getString("data") == "ok") {
+                if (jsonData.getString("data") == "startExam") {
                     break
                 }
             }

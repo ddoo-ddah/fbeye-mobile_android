@@ -1,6 +1,7 @@
 package xyz.fbeye.network
 
 import android.annotation.SuppressLint
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -70,10 +71,12 @@ class Client private constructor() {
             val jsonData = JSONObject()
             jsonData.apply {
                 put("type", "eye")
-                for(data in dataList){
-                    put("data", data.toDouble())
-                }
+                put("data", dataList.toFloatArray())
+//                for(data in dataList){
+//                    put("data", data.toDouble())
+//                }
             }
+            Log.d("Write Eye data", jsonData.toString())
             try {
                 client!!.outputStream.apply {
                     write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
@@ -98,9 +101,11 @@ class Client private constructor() {
                 put("type", type)
                 put("data", data)
             }
+            var newData = jsonData.toString().replace("\\", "").replace("\"{", "{").replace("}\"", "}")
+//            Log.d("new Data", newData)
             try {
                 client!!.outputStream.apply {
-                    write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                    write(newData.toByteArray(StandardCharsets.UTF_8))
                     flush()
                     close()
                 }

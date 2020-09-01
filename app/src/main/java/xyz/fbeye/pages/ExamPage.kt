@@ -13,12 +13,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
-import xyz.fbeye.feature.EyeGazeFinder
 import xyz.fbeye.R
 import xyz.fbeye.feature.Snapshotor
 import xyz.fbeye.network.Client
 import xyz.fbeye.network.ImageClient
-import kotlinx.android.synthetic.main.testing_page_layout.*
+import kotlinx.android.synthetic.main.exam_page_layout.*
 import org.json.JSONObject
 import java.net.URI
 import java.util.*
@@ -37,7 +36,7 @@ class ExamPage : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.testing_page_layout)
+        setContentView(R.layout.exam_page_layout)
 
         keepScreenOn()
 
@@ -123,7 +122,7 @@ class ExamPage : AppCompatActivity() {
 
     //TODO ok사인 물어보고 바꾸기 = 만들고 알려준다고함
     private fun finishExam(isFinish: String) {
-        if (isFinish == "ok") {
+        if (isFinish == "endExam") {
             isRunning = false
             runOnUiThread {
                 exam_page_finishTextView.visibility = View.VISIBLE
