@@ -39,8 +39,6 @@ class ExamPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.testing_page_layout)
 
-        EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeData)
-
         keepScreenOn()
 
         initSnapshotor()
@@ -69,7 +67,7 @@ class ExamPage : AppCompatActivity() {
         snapshotor.apply {
             setQrCallback(this@ExamPage::setQrData)
         }.run {
-            startCameraWithAnalysis(point, "exam")
+            startCameraWithAnalysis(point)
             startFrontCamera(exam_page_preivew_front)
         }
     }

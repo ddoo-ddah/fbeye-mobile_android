@@ -38,8 +38,6 @@ class FaceChecker : AppCompatActivity() {
         snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
         snapshotor.startFrontCamera(face_checker_preview)
 
-        EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeDataForTest)
-
         waitingForStart()
     }
 

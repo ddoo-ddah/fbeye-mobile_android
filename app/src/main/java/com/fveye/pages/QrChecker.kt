@@ -10,6 +10,7 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
+import com.fbeye.EyeGazeFinder
 import com.fveye.R
 import com.fveye.feature.Snapshotor
 import com.fveye.network.Client
@@ -27,6 +28,7 @@ class QrChecker : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
 
+        EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeData)
         //가끔 서버에 접속을 2번 혹은 그 이상 접속 해서 null check 함
         if(Objects.isNull(savedInstanceState)){
             Client.getInstance().startClient()
@@ -47,7 +49,7 @@ class QrChecker : AppCompatActivity() {
         val point = Point()
         display!!.getRealSize(point)
         snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
-        snapshotor.startCameraWithAnalysis(point, "test")
+        snapshotor.startCameraWithAnalysis(point)
     }
 
     private fun checkOk() {

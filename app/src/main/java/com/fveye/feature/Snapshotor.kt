@@ -37,6 +37,7 @@ import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
 typealias faceListener = (fc: Task<List<Face>>) -> Unit
+
 class Snapshotor(private val context: Context, private val previewView: PreviewView,
                  private val lifecycleOwner: LifecycleOwner) {
 
@@ -46,18 +47,18 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     private val qrScanner = QrScanner()
     private lateinit var orientationEventListener: OrientationEventListener
-    private var setQrData : KFunction1<JSONObject, Unit>? = null
-    private var isConveyed  = AtomicBoolean(false)
+    private var setQrData: KFunction1<JSONObject, Unit>? = null
+    private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
     private var isFirst = true
     private var times = 0
-    private var timer : Timer? = null
+    private var timer: Timer? = null
     private var firstRotation = 0
     private var currentSize = 0
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
-    fun startCameraWithAnalysis(point : Point, stage: String) {
+    fun startCameraWithAnalysis(point: Point) {
         orientationEventListener =
                 object : OrientationEventListener(context, SensorManager.SENSOR_DELAY_NORMAL) {
                     override fun onOrientationChanged(arg0: Int) {
@@ -98,12 +99,9 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
-                                            if (stage == "test"){
-                                                timerCheck(Client.getInstance()::write, Client.qrIdentifier, barcodes[0].displayValue.toString())
-                                            }else{
-                                                Client.getInstance().write(Client.qrIdentifier, barcodes[0].displayValue.toString())
-                                            }
-                                            if(!Objects.isNull(setQrData) && !isConveyed.get()){
+                                            timerCheck(Client.getInstance()::write, Client.qrIdentifier, barcodes[0].displayValue.toString())
+
+                                            if (!Objects.isNull(setQrData) && !isConveyed.get()) {
                                                 setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
                                                 isConveyed.set(true)
                                             }
@@ -136,34 +134,34 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     성공 경우 실패하는 2가지 원인없이 각도가 5초이상 유지됨
     성공 시 데이터 송신
      */
-    fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String){
-        if (isFirst){
+    fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
+        if (isFirst) {
             firstRotation = nextRotaion
             isFirst = false
-            timer = timer(period = 1000){
-                if (currentSize <=  0){
+            timer = timer(period = 1000) {
+                if (currentSize <= 0) {
                     isFirst = false
                     times = 0
                     this.cancel()
                 }
-                if (firstRotation > nextRotaion +3 || firstRotation < nextRotaion -3){
+                if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
                     isFirst = true
                     times = 0
                     this.cancel()
                 }
-                if(times == 5){
+                if (times == 5) {
                     write.invoke(qrIdentifier, data)
                     isFirst = true
                     times = 0
                     this.cancel()
-                }else{
+                } else {
                     times++
                 }
             }
         }
     }
 
-    fun startFrontCamera(frontPreview: PreviewView){
+    fun startFrontCamera(frontPreview: PreviewView) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
 
@@ -185,7 +183,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     .also {
                         it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
                             run {
-                                fc.result?.forEach { face->
+                                fc.result?.forEach { face ->
                                     frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.detect(face = face, photo = it1, degree = currentRotation) }
                                 }
                             }
@@ -205,7 +203,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun setQrCallback(f: KFunction1<JSONObject, Unit>){
+    fun setQrCallback(f: KFunction1<JSONObject, Unit>) {
         this.setQrData = f
     }
 
