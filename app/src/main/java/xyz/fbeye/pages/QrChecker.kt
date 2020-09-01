@@ -57,8 +57,7 @@ class QrChecker : AppCompatActivity() {
             while (true) {
                 var bytes = Client.getInstance().readData()
                 var jsonData = JSONObject(String(bytes))
-//                Log.d("Server send", "json data = $jsonData")
-                if (jsonData.getString("data") == "authOk") {
+                if (jsonData.getString("data") == "desktopOk") {
                     break
                 }
             }

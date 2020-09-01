@@ -36,6 +36,8 @@ class EyeGazeFinder private constructor() {
 
     private var processedBitmap : Bitmap? = null
 
+    private var requestBitmap = false
+
     private lateinit var leftPositions :List<Pair<Float, Float>>
     private lateinit var rightPositions :List<Pair<Float, Float>>
 
@@ -52,7 +54,7 @@ class EyeGazeFinder private constructor() {
 
     fun init(fileDescriptor : AssetFileDescriptor){
         val channel = FileInputStream(fileDescriptor.fileDescriptor).channel
-        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength),option)
+        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength), option)
         OpenCVLoader.initDebug()
         executor = Executors.newCachedThreadPool()
         rotateMatrix.postRotate(180.0f)
@@ -183,14 +185,17 @@ class EyeGazeFinder private constructor() {
                     it.add(face.headEulerAngleX)
                     it.add(face.headEulerAngleY)
                     it.add(face.headEulerAngleZ)
-                    eyeWriter.invoke(it)
+                    if(!it.contains(Float.NaN)){
+                        eyeWriter.invoke(it)
+                    }
             }
 
-            processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
-            processedBitmap?.let { bitmapWriter.invoke(it) }
-
+            //TODO 서버 요청이 있을 때만 생성하기
+            if(requestBitmap){
+                processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
+                processedBitmap?.let { bitmapWriter.invoke(it) }
+            }
         }
-
     }
 
     private fun processBitmap(bitmap: Bitmap, leftPositions: List<Pair<Float, Float>> , rightPositions: List<Pair<Float, Float>>, leftSize : Rect, rightSize : Rect ){

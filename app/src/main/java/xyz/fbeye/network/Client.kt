@@ -20,7 +20,6 @@ class Client private constructor() {
 
     companion object {
         private var instance: Client? = null
-        var qrIdentifier = "RES"
 
         fun getInstance(): Client =
                 instance ?: synchronized(this) {
@@ -70,16 +69,14 @@ class Client private constructor() {
         runBlocking {
             val jsonData = JSONObject()
             jsonData.apply {
-                put("type", "eye")
-                put("data", dataList.toFloatArray())
-//                for(data in dataList){
-//                    put("data", data.toDouble())
-//                }
+                put("type", "EYE")
+                put("data", dataList.toFloatArray().contentToString())
             }
-            Log.d("Write Eye data", jsonData.toString())
+            val newData = jsonData.toString()
+                    .replace("\"[", "[").replace("]\"", "]")
             try {
                 client!!.outputStream.apply {
-                    write(jsonData.toString().toByteArray(StandardCharsets.UTF_8))
+                    write(newData.toByteArray(StandardCharsets.UTF_8))
                     flush()
                     close()
                 }
@@ -102,7 +99,6 @@ class Client private constructor() {
                 put("data", data)
             }
             var newData = jsonData.toString().replace("\\", "").replace("\"{", "{").replace("}\"", "}")
-//            Log.d("new Data", newData)
             try {
                 client!!.outputStream.apply {
                     write(newData.toByteArray(StandardCharsets.UTF_8))
