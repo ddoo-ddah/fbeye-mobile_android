@@ -161,8 +161,8 @@ class EyeGazeFinder private constructor() {
             rightPositions = trightPositions
 
 
-            val leftEyeDegree = calculateEyeDegree(leftPositions, leftEyeBallRadius, Pair(((leftEyeRight - leftEyeLeft)+20)/2.0f, ((leftEyeBottom - leftEyeTop)*1.3f+30)/2.0f - 10), Pair(face.headEulerAngleX, face.headEulerAngleY))
-            val rightEyeDegree = calculateEyeDegree(rightPositions, rightEyeBallRadius, Pair(((rightEyeRight - rightEyeLeft)+40)/2.0f-10, ((rightEyeBottom - rightEyeTop)*1.3f + 30)/2.0f - 10), Pair(face.headEulerAngleX, face.headEulerAngleY))
+            val leftEyeDegree = calculateEyeDegree(leftPositions, leftEyeBallRadius)
+            val rightEyeDegree = calculateEyeDegree(rightPositions, rightEyeBallRadius)
             Log.e("eyeL",leftEyeDegree.toString())
             Log.e("eyeR",rightEyeDegree.toString())
 
@@ -222,7 +222,7 @@ class EyeGazeFinder private constructor() {
         processedBitmap = bitmap
     }
 
-    private fun calculateEyeDegree(positions : List<Pair<Float, Float>>, radius : Float, center:Pair<Float,Float>, headAngle: Pair<Float,Float> ): Pair<Float, Float> {
+    private fun calculateEyeDegree(positions : List<Pair<Float, Float>>, radius : Float ): Pair<Float, Float> {
         //Head z orientation apply.
         //calculate euler angle
         //8~15 iris
