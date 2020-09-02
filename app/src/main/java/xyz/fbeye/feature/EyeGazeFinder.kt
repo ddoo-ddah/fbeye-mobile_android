@@ -36,7 +36,7 @@ class EyeGazeFinder private constructor() {
 
     private var processedBitmap : Bitmap? = null
 
-    private var requestBitmap = false
+    var requestBitmap = false
 
     private lateinit var leftPositions :List<Pair<Float, Float>>
     private lateinit var rightPositions :List<Pair<Float, Float>>
@@ -194,6 +194,7 @@ class EyeGazeFinder private constructor() {
             if(requestBitmap){
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
                 processedBitmap?.let { bitmapWriter.invoke(it) }
+                requestBitmap = false
             }
         }
     }

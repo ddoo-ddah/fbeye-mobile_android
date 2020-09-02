@@ -13,12 +13,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.android.synthetic.main.exam_page_layout.*
+import org.json.JSONObject
 import xyz.fbeye.R
+import xyz.fbeye.feature.EyeGazeFinder
 import xyz.fbeye.feature.Snapshotor
 import xyz.fbeye.network.Client
 import xyz.fbeye.network.ImageClient
-import kotlinx.android.synthetic.main.exam_page_layout.*
-import org.json.JSONObject
 import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
@@ -58,7 +59,7 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
-    private fun initSnapshotor(){
+    private fun initSnapshotor() {
         val display: Display? = this.display
         val point = Point()
         display!!.getRealSize(point)
@@ -102,6 +103,7 @@ class ExamPage : AppCompatActivity() {
         val uri = URI(ip)
         imageClient = ImageClient()
         imageClient!!.startClient(uri)
+        EyeGazeFinder.instance.setBitmapWriter(imageClient!!::write)
     }
 
     private fun workWhileExam() {
@@ -134,10 +136,7 @@ class ExamPage : AppCompatActivity() {
         if (Objects.isNull(imageClient)) {
             return
         }
-        executor.execute {
-            bitmap = exam_page_preivew.bitmap
-            imageClient!!.write(bitmap)
-        }
+        EyeGazeFinder.instance.requestBitmap = true
     }
 
     private fun hideSystemUI() {
