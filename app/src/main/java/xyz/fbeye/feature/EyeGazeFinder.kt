@@ -213,12 +213,25 @@ class EyeGazeFinder private constructor() {
         val paint = Paint()
         paint.color = Color.RED
 
+        val paint2 = Paint()
+        paint2.color = Color.GREEN
 
         for (i in 8 until 18){
 
             canvas.drawCircle(leftPositions[i].first * leftWidthRatio + leftSize.left,leftPositions[i].second * leftHeightRatio + leftSize.top,5.0f,paint)
             canvas.drawCircle(rightPositions[i].first * rightWidthRatio + rightSize.left, rightPositions[i].second * rightHeightRatio+rightSize.top,5.0f, paint)
         }
+
+        val irisCenterX = leftPositions[16].first * leftWidthRatio + leftSize.left
+        val irisCenterY = leftPositions[16].second * leftHeightRatio + leftSize.top
+
+        val eyeBallCenterX = leftPositions[17].first * leftWidthRatio + leftSize.left
+        val eyeBallCenterY = leftPositions[17].second * leftHeightRatio + leftSize.top
+
+        val drawX = (irisCenterX - eyeBallCenterX)*1.2f
+        val drawY = (irisCenterY - eyeBallCenterY)*1.2f
+
+        canvas.drawLine(eyeBallCenterX, eyeBallCenterY, eyeBallCenterX + drawX, eyeBallCenterY + drawY, paint2)
 
         processedBitmap = bitmap
     }
