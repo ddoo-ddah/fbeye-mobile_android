@@ -31,7 +31,7 @@ class ImageClient {
         if (Objects.isNull(data)) {
             return
         }
-        if (Objects.isNull(client) && !Objects.isNull(uri)) {
+        if (Objects.isNull(client) && Objects.nonNull(uri)) {
             startClient(uri!!)
             data!!.recycle()
             return
@@ -57,7 +57,7 @@ class ImageClient {
     }
 
     fun destroy() {
-        if (!Objects.isNull(client)) {
+        if (Objects.nonNull(client)) {
             Thread {
                 client!!.disconnect()
                 client!!.close()

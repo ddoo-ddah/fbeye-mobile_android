@@ -139,7 +139,7 @@ class Client private constructor() {
     }
 
     fun disconnect() {
-        if (client!!.isConnected && !Objects.isNull(client)) {
+        if (client!!.isConnected && Objects.nonNull(client)) {
             runBlocking {
                 withContext(Dispatchers.IO) {
                     client!!.close()

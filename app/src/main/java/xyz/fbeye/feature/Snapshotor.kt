@@ -101,7 +101,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                         CoroutineScope(Dispatchers.IO).launch {
                                             timerCheck(Client.getInstance()::write, "AUT", barcodes[0].displayValue.toString())
 
-                                            if (!Objects.isNull(setQrData) && !isConveyed.get()) {
+                                            if (Objects.nonNull(setQrData) && !isConveyed.get()) {
                                                 setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
                                                 isConveyed.set(true)
                                             }
@@ -128,12 +128,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    /*
-    qr 인식 될때마다 실행
-    실패 되는 경우 2가지 1. qr 인식 안됨 2. 흔들림이 감지됨
-    성공 경우 실패하는 2가지 원인없이 각도가 5초이상 유지됨
-    성공 시 데이터 송신
-     */
     fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
         if (isFirst) {
             firstRotation = nextRotaion

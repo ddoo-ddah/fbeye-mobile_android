@@ -92,7 +92,7 @@ class ExamPage : AppCompatActivity() {
 
     private fun connectToImageServer() {
         while (isRunning) {
-            if (!Objects.isNull(qrData)) {
+            if (Objects.nonNull(qrData)) {
                 break
             }
         }
@@ -150,10 +150,10 @@ class ExamPage : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (!Objects.isNull(wakeLock)) {
+        if (Objects.nonNull(wakeLock)) {
             wakeLock!!.release()
         }
-        if (!Objects.isNull(imageClient)) {
+        if (Objects.nonNull(imageClient)) {
             imageClient!!.destroy()
         }
         snapshotor.destroy()

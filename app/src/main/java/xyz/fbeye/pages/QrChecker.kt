@@ -70,7 +70,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(!Objects.isNull(wakeLock)){
+        if(Objects.nonNull(wakeLock)){
             wakeLock!!.release()
         }
         snapshotor.destroy()
