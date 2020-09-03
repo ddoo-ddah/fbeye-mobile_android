@@ -162,18 +162,13 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
-                    .setTargetResolution(Size(480, 640))
                     .build()
-                    .also {
-                        it.setSurfaceProvider(frontPreview.createSurfaceProvider())
-                    }
-
-            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             val singleExecutor = Executors.newSingleThreadExecutor()
 
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .setTargetResolution(Size(480, 640))
                     .build()
                     .also {
                         it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
@@ -185,12 +180,15 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                         })
                     }
 
+            val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
+
             try {
                 cameraProvider.unbindAll()
 
                 cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector, preview, analysis)
 
+                preview.setSurfaceProvider(frontPreview.createSurfaceProvider())
             } catch (exc: Exception) {
                 Log.e("TAG", "Use case binding failed", exc)
             }

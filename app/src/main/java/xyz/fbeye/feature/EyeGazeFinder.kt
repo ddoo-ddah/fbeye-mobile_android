@@ -163,8 +163,8 @@ class EyeGazeFinder private constructor() {
 
             val leftEyeDegree = calculateEyeDegree(leftPositions, leftEyeBallRadius)
             val rightEyeDegree = calculateEyeDegree(rightPositions, rightEyeBallRadius)
-            Log.e("eyeL",leftEyeDegree.toString())
-            Log.e("eyeR",rightEyeDegree.toString())
+//            Log.e("eyeL",leftEyeDegree.toString())
+//            Log.e("eyeR",rightEyeDegree.toString())
 
             val leftSize = Rect()
             leftSize.set(leftEyeLeft.toInt(),
