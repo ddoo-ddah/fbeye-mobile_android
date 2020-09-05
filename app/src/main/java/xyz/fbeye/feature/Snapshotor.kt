@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Point
 import android.hardware.SensorManager
 import android.os.Build
+import android.os.CountDownTimer
 import android.util.Log
 import android.util.Size
 import android.view.OrientationEventListener
@@ -50,8 +51,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
     private var isFirst = true
-    private var times = 0
-    private var timer: Timer? = null
     private var firstRotation = 0
     private var currentSize = 0
 
@@ -128,31 +127,31 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
+    private fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
         if (isFirst) {
             firstRotation = nextRotaion
             isFirst = false
-            timer = timer(period = 1000) {
+            val countdown = object : CountDownTimer(5000,1000){
+                override fun onTick(p0: Long) {
 //                if (currentSize <= 0) {
 //                    isFirst = true
 //                    times = 0
 //                    this.cancel()
 //                }
-                if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
-                    isFirst = true
-                    times = 0
-                    this.cancel()
+                    if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
+                        isFirst = true
+                        this.cancel()
+                    }
                 }
-                if (times == 5) {
+
+                override fun onFinish() {
                     write.invoke(qrIdentifier, data)
                     Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
                     isFirst = true
-                    times = 0
-                    this.cancel()
-                } else {
-                    times++
                 }
-            }
+
+            }.start()
+
         }
     }
 
