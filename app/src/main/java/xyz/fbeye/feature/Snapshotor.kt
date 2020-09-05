@@ -51,6 +51,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
     private var isFirst = true
+    private var times = 0
+    private var timer: Timer? = null
     private var firstRotation = 0
     private var currentSize = 0
 
@@ -131,26 +133,27 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         if (isFirst) {
             firstRotation = nextRotaion
             isFirst = false
-            val countdown = object : CountDownTimer(5000,1000){
-                override fun onTick(p0: Long) {
+            timer = timer(period = 1000) {
 //                if (currentSize <= 0) {
 //                    isFirst = true
 //                    times = 0
 //                    this.cancel()
 //                }
-                    if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
-                        isFirst = true
-                        this.cancel()
-                    }
+                if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
+                    isFirst = true
+                    times = 0
+                    this.cancel()
                 }
-
-                override fun onFinish() {
+                if (times == 5) {
                     write.invoke(qrIdentifier, data)
                     Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
                     isFirst = true
+                    times = 0
+                    this.cancel()
+                } else {
+                    times++
                 }
-
-            }.start()
+            }
 
         }
     }
