@@ -18,8 +18,6 @@
         exclude group: 'org.json', module: 'json'
     }
     
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.0-rc"
-
     implementation 'com.quickbirdstudios:opencv:4.3.0'
 
     implementation ('org.tensorflow:tensorflow-lite:2.3.0')
