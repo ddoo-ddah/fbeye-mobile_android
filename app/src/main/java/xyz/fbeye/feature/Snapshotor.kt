@@ -145,7 +145,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                 }
                 if (times == 5) {
                     write.invoke(qrIdentifier, data)
-                    Log.d("write Success", "qr read")
+                    Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
                     isFirst = true
                     times = 0
                     this.cancel()

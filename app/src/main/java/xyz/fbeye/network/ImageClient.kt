@@ -6,6 +6,9 @@ import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
 import io.socket.client.IO
+import io.socket.emitter.Emitter
+import org.json.JSONObject
+import xyz.fbeye.feature.EyeGazeFinder
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
@@ -15,14 +18,14 @@ class ImageClient {
 
     private var client: io.socket.client.Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
-    private var uri: URI? = null
+    private var uri = URI("http://fbeye.sysbot32.com:3000")
 
-    fun startClient(uri: URI) {
-        this.uri = uri
+    fun startClient() {
         executor.submit {
-//            client = IO.socket("http://fbeye.sysbot32.com:3000")
             client = IO.socket(uri)
+            read()
             client!!.connect()
+            client!!.emit("mobile-welcome", "6b37ecfbf418")
         }
     }
 
@@ -31,8 +34,8 @@ class ImageClient {
         if (Objects.isNull(data)) {
             return
         }
-        if (Objects.isNull(client) && Objects.nonNull(uri)) {
-            startClient(uri!!)
+        if (Objects.isNull(client)) {
+            startClient()
             data!!.recycle()
             return
         }
@@ -53,6 +56,18 @@ class ImageClient {
             resizedBitmap.recycle()
             byteArrayOutputStream.close()
             data.recycle()
+        }
+    }
+
+    fun read() {
+        client!!.on("request-data") { checkForStarting(it) }
+        client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap = false }
+    }
+
+    private fun checkForStarting(it :Array<Any?>){
+        val jsonData = JSONObject(it[0].toString())
+        if (jsonData.get("type") == "RES" && Objects.nonNull(Client.getInstance().userCode) && jsonData.get("userCode") == Client.getInstance().userCode){
+            EyeGazeFinder.instance.requestBitmap = true
         }
     }
 

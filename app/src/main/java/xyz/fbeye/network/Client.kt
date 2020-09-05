@@ -32,6 +32,7 @@ class Client private constructor() {
     private val ip = "fbeye.xyz"
     private val port = 10101
     private var client: SSLSocket? = null
+    var userCode:String? = null
 
     fun startClient() {
         connectToServer()
