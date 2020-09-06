@@ -194,7 +194,6 @@ class EyeGazeFinder private constructor() {
             if(requestBitmap){
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
                 processedBitmap?.let { bitmapWriter.invoke(it) }
-                requestBitmap = false
             }
         }
     }
