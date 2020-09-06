@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Point
 import android.hardware.SensorManager
 import android.os.Build
+import android.os.CountDownTimer
 import android.util.Log
 import android.util.Size
 import android.view.OrientationEventListener
@@ -128,7 +129,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
+    private fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
         if (isFirst) {
             firstRotation = nextRotaion
             isFirst = false
@@ -153,6 +154,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     times++
                 }
             }
+
         }
     }
 
@@ -168,7 +170,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetResolution(Size(480, 640))
+                    .setTargetResolution(Size(640, 480))
                     .build()
                     .also {
                         it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
