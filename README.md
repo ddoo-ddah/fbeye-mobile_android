@@ -1,4 +1,4 @@
-# FBEye Android Application
+jjjjjjjjjjjjj# FBEye Android Application
 
 ## What is FBEye?
  #### Find Bad Eye
@@ -30,20 +30,23 @@
  2. 연동이 완료 된 이후부터는 동차 좌표계 변환을 통해 입력되는 시선 방향을 스크린 좌표로 변환하여 수험자가 보고 있는 좌표를 얻어 냅니다.
  
 #### QR Code Scan
- 1. 클라이언트에서 보여주는 QR Code를 인식합니다.
+ 1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 라이브러리와 [CameraX](https://developer.android.com/training/camerax)의 ImageAnlysis를 사용해서
+ 클라이언트에서 보여주는 QR Code를 인식합니다.
  2. 같은 QR Code를 5초 이상 인식해야만 서버로 데이터를 전송합니다.
+ 3. 이때 화면의 흔들림이 감지되면 핸드폰을 사용한 것으로 간주 다시 5초 이상 인식해야 서버로 데이터를 전송합니다.
  
 #### Processing Server Connection
- 1. 보안을 위해 SSLSocket을 사용했습니다. 
- 2. 원활한 통신을 위해 Json을 사용해서 데이터를 주고 받습니다.
+ 1. 보안을 위해 SSLSocket과 프로토콜 TLSv1.2를 사용해서 연결했습니다.
+ 2. 원활한 통신을 위해 [JSONOBJECT](https://developer.android.com/reference/org/json/JSONObject)을 사용해서 데이터를 주고 받습니다.
 
 #### Image Server Connection
- 1. Socket.io를 통해 연결했습니다.
- 2. 서버로부터 요청이 들어오면 전면 카메라의 이미지를 리사이징 후 base64로 인코딩해서 전송합니다.
- 3. 이미지 전송은 stop명령이 오기 전까지 계속해서 보냅니다.
+ 1. [Socket.IO](https://socket.io/blog/native-socket-io-and-android/)를 사용해서 연결했습니다.
+ 2. 이미지의 생성과 전송의 비용이 크기 때문에 서버로부터 요청이 들어오는 경우에만 이미지를 전송합니다.
+ 3. 이미지 서버에서 사용하기 편하도록 적절하게 리사이징후 base64 이미지로 변환합니다.
+ 4. stop명령이 오기 전까지 매 프레임마다 변환된 이미지를 계속해서 보냅니다.
  
 #### Pages
- 1. 각각의 화면들은 실행 중에 꺼지지 않습니다.
+ 1. 각각의 화면들은 [wakelock](https://developer.android.com/training/scheduling/wakelock)을 이용해서 실행 중에 꺼지지 않습니다.
  2. 사용자의 편의성을 위해 처음 카메라 조정을 제외하면 특별한 조작이 필요없습니다.
  3. 시험 도중엔 UI가 사라집니다.
 
