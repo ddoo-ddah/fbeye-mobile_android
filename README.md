@@ -29,6 +29,24 @@
  1. 수험자 클라이언트와의 연동을 통해 스크린 특징점과 시선 방향을 맵핑합니다.
  2. 연동이 완료 된 이후부터는 동차 좌표계 변환을 통해 입력되는 시선 방향을 스크린 좌표로 변환하여 수험자가 보고 있는 좌표를 얻어 냅니다.
  
+#### QR Code Scan
+ 1. 클라이언트에서 보여주는 QR Code를 인식합니다.
+ 2. 같은 QR Code를 5초 이상 인식해야만 서버로 데이터를 전송합니다.
+ 
+#### Processing Server Connection
+ 1. 보안을 위해 SSLSocket을 사용했습니다. 
+ 2. 원활한 통신을 위해 Json을 사용해서 데이터를 주고 받습니다.
+
+#### Image Server Connection
+ 1. Socket.io를 통해 연결했습니다.
+ 2. 서버로부터 요청이 들어오면 전면 카메라의 이미지를 리사이징 후 base64로 인코딩해서 전송합니다.
+ 3. 이미지 전송은 stop명령이 오기 전까지 계속해서 보냅니다.
+ 
+#### Pages
+ 1. 각각의 화면들은 실행 중에 꺼지지 않습니다.
+ 2. 사용자의 편의성을 위해 처음 카메라 조정을 제외하면 특별한 조작이 필요없습니다.
+ 3. 시험 도중엔 UI가 사라집니다.
+
 ## Requirements
  * Recommended Device : Samsung Galaxy S10 series or latest
  * Android : At least Oreo (API 22+)
