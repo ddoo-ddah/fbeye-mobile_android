@@ -1,4 +1,4 @@
-jjjjjjjjjjjjj# FBEye Android Application
+# FBEye Android Application
 
 ## What is FBEye?
  #### Find Bad Eye
