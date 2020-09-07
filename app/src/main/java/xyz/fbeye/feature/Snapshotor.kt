@@ -182,11 +182,12 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
             val singleExecutor = Executors.newSingleThreadExecutor()
 
+
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetResolution(Size(640, 480))
                     .build()
                     .also {
+                        //need 640*480 Image
                         it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
                             run {
                                 fc.result?.forEach { face ->
