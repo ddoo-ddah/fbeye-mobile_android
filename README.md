@@ -30,10 +30,14 @@ jjjjjjjjjjjjj# FBEye Android Application
  2. 연동이 완료 된 이후부터는 동차 좌표계 변환을 통해 입력되는 시선 방향을 스크린 좌표로 변환하여 수험자가 보고 있는 좌표를 얻어 냅니다.
  
 #### QR Code Scan
- 1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 라이브러리와 [CameraX](https://developer.android.com/training/camerax)의 ImageAnlysis를 사용해서
- 클라이언트에서 보여주는 QR Code를 인식합니다.
- 2. 같은 QR Code를 5초 이상 인식해야만 서버로 데이터를 전송합니다.
- 3. 이때 화면의 흔들림이 감지되면 핸드폰을 사용한 것으로 간주 다시 5초 이상 인식해야 서버로 데이터를 전송합니다.
+ 1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 및 [CameraX](https://developer.android.com/training/camerax) 라이브러리를 사용하여
+ PC 클라이언트에서 보여주는 QR Code를 인식합니다.
+ 2. QR코드를 첫번째로 인식한 경우 5초간 대기 한 뒤에 서버로 전송합니다. 
+ 3. 2의 대기시간 중 휴대폰의 흔들림이 감지되면 핸드폰을 사용한 것으로 간주하여 다시 5초간 대기합니다.
+ 4. QR Code가 인증서버에서 확인된 경우에만 안드로이드 어플리케이션 및 PC 클라이언트를 정상적으로 사용 할 수 있습니다.
+    * 사실상의 로그인 기능입니다.
+ 5. 이후 시험을 응시하는 동안에도 주기적으로 변경되는 QR Code를 인식하여 서버로 전송합니다.
+ * QR Code에서 일부 데이터를 추출하여 이미지 서버와의 연결을 성립시킬때도 사용합니다.
  
 #### Processing Server Connection
  1. 보안을 위해 SSLSocket과 프로토콜 TLSv1.2를 사용해서 연결했습니다.
