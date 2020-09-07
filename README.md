@@ -46,7 +46,7 @@
  4. 이미지 전송은 stop명령이 오기 전까지 계속해서 보냅니다.
  
 #### Pages
- 1. 각각의 화면들은 wakelock을 이용해서 실행 중에 꺼지지 않습니다.
+ 1. 각각의 화면들은 [wakelock](https://developer.android.com/training/scheduling/wakelock)을 이용해서 실행 중에 꺼지지 않습니다.
  2. 사용자의 편의성을 위해 처음 카메라 조정을 제외하면 특별한 조작이 필요없습니다.
  3. 시험 도중엔 UI가 사라집니다.
 
