@@ -20,14 +20,13 @@ class EyeChecker : AppCompatActivity() {
     private var wakeLock: PowerManager.WakeLock? = null
     private lateinit var snapshotor: Snapshotor
 
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.eye_checker_layout)
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::FaceWakeLock").apply {
-                acquire()
+                acquire(200*60*1000L /*200 minutes*/)
             }
         }
 
