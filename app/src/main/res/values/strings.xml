@@ -3,4 +3,8 @@
     <string name="qr_check_explanation_text">QR을 인식시켜 주세요.</string>
     <string name="exam_page_finish_text">수고하셨습니다.</string>
     <string name="face_checker_text">모니터의 지시에 따라주세요.</string>
+    <string name="notChecking_text">QR코드를 인식시켜 주세요.</string>
+    <string name="checking_text">QR코드 인식 중...</string>
+    <string name="checkFailed_text">QR코드 인식 실패, 다시 시도해주세요.</string>
+    <string name="checkSuccess_text">QR코드 인식 성공!</string>
 </resources>

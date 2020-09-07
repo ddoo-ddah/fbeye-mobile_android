@@ -190,7 +190,6 @@ class EyeGazeFinder private constructor() {
                     }
             }
 
-            //TODO 서버 요청이 있을 때만 생성하기
             if(requestBitmap){
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
                 processedBitmap?.let { bitmapWriter.invoke(it) }
