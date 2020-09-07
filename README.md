@@ -21,7 +21,7 @@
 #### Eye Gaze Estimation
  1. [Google Mlkit](https://developers.google.com/ml-kit/vision/face-detection) 라이브러리를 통해 얼굴 및 얼굴 특징점을 찾습니다.
  2. 얼굴 특징점 중 왼쪽 및 오른쪽 눈의 위치를 찾고, 이를 이미지로 추출합니다.
- 3. 미리 제작한 딥러닝 모델을 통해 Eye LandMark를 얻어냅니다. 
+ 3. 미리 제작한 딥러닝 모델을 통해 Eye Landmark를 얻어냅니다. 
  4. 3에서 얻은 Eye Landmark를 기반으로 3D 모델 기반 시선 추적을 통해 시선 방향 벡터를 구합니다.
  5. 시선 방향 벡터를 인증서버로 전송합니다.
 
