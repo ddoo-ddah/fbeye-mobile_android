@@ -1,4 +1,4 @@
-# FBEye Android Application
+jjjjjjjjjjjjj# FBEye Android Application
 
 ## What is FBEye?
  #### Find Bad Eye
@@ -41,9 +41,9 @@
 
 #### Image Server Connection
  1. [Socket.IO](https://socket.io/blog/native-socket-io-and-android/)를 사용해서 연결했습니다.
- 2. 서버로부터 요청이 들어오면 2가지 과정을 거친 후 전면 카메라 이미지를 전송하기 시작합니다.
- 3. 원본 이미지가 너무 크기 때문에 리사이징을 하는 과정과 base64로 인코딩을 하는 과정 2가지를 거칩니다.
- 4. 이미지 전송은 stop명령이 오기 전까지 계속해서 보냅니다.
+ 2. 이미지의 생성과 전송의 비용이 크기 때문에 서버로부터 요청이 들어오는 경우에만 이미지를 전송합니다.
+ 3. 이미지 서버에서 사용하기 편하도록 적절하게 리사이징후 base64 이미지로 변환합니다.
+ 4. stop명령이 오기 전까지 매 프레임마다 변환된 이미지를 계속해서 보냅니다.
  
 #### Pages
  1. 각각의 화면들은 [wakelock](https://developer.android.com/training/scheduling/wakelock)을 이용해서 실행 중에 꺼지지 않습니다.
