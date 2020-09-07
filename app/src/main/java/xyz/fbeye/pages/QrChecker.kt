@@ -18,12 +18,12 @@ import org.json.JSONObject
 import xyz.fbeye.feature.EyeGazeFinder
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.R)
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
     private var wakeLock: PowerManager.WakeLock? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
@@ -36,7 +36,7 @@ class QrChecker : AppCompatActivity() {
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::QrWakeLock").apply {
-                acquire()
+                acquire(200*60*1000L /*200 minutes*/)
             }
         }
 
@@ -44,10 +44,9 @@ class QrChecker : AppCompatActivity() {
         checkOk()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun sendQrData() {
-        val display: Display? = this.display
-        val point = Point()
-        display!!.getRealSize(point)
+        val point = Point(qr_check_preview.width, qr_check_preview.height)
         snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
         snapshotor.startCameraWithAnalysis(point)
     }

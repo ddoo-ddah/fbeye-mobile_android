@@ -24,7 +24,6 @@ import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
 
-@RequiresApi(Build.VERSION_CODES.R)
 class ExamPage : AppCompatActivity() {
 
     private var isRunning = true
@@ -59,10 +58,9 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun initSnapshotor() {
-        val display: Display? = this.display
-        val point = Point()
-        display!!.getRealSize(point)
+        val point = Point(exam_page_preivew.width, exam_page_preivew.height)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner)
         snapshotor.apply {
             setQrCallback(this@ExamPage::setQrData)
