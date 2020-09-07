@@ -24,10 +24,6 @@
  3. 미리 제작한 딥러닝 모델을 통해 Eye Landmark를 얻어냅니다. 
  4. 3에서 얻은 Eye Landmark를 기반으로 3D 모델 기반 시선 추적을 통해 시선 방향 벡터를 구합니다.
  5. 시선 방향 벡터를 인증서버로 전송합니다.
-
-#### Eye Position Tracking on Display
- 1. 수험자 클라이언트와의 연동을 통해 스크린 특징점과 시선 방향을 맵핑합니다.
- 2. 연동이 완료 된 이후부터는 동차 좌표계 변환을 통해 입력되는 시선 방향을 스크린 좌표로 변환하여 수험자가 보고 있는 좌표를 얻어 냅니다.
  
 #### QR Code Scan
  1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 및 [CameraX](https://developer.android.com/training/camerax) 라이브러리를 사용하여
