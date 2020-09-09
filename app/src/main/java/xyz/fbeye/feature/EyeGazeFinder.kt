@@ -242,7 +242,7 @@ class EyeGazeFinder private constructor() {
         //17 eyeball center
         //x 위+ 아래-
         //y 왼쪽+ 오른쪽-
-        //test all iris contours, apply root square
+        //splash_icon all iris contours, apply root square
 
         var ttheta = 0.0
         var tphi = 0.0
