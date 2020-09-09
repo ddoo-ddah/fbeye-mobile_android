@@ -27,9 +27,6 @@ import kotlin.reflect.KFunction1
 
 class EyeGazeFinder private constructor() {
 
-    //make destroy
-    //얼굴인식 똑바로 되는지 체크
-
     private lateinit var interpreter : Interpreter
     private val gpuDelegate = GpuDelegate()
     private val option = Interpreter.Options().addDelegate(gpuDelegate)
@@ -163,8 +160,6 @@ class EyeGazeFinder private constructor() {
 
             val leftEyeDegree = calculateEyeDegree(leftPositions, leftEyeBallRadius)
             val rightEyeDegree = calculateEyeDegree(rightPositions, rightEyeBallRadius)
-//            Log.e("eyeL",leftEyeDegree.toString())
-//            Log.e("eyeR",rightEyeDegree.toString())
 
             val leftSize = Rect()
             leftSize.set(leftEyeLeft.toInt(),
@@ -235,14 +230,11 @@ class EyeGazeFinder private constructor() {
     }
 
     private fun calculateEyeDegree(positions : List<Pair<Float, Float>>, radius : Float ): Pair<Float, Float> {
-        //Head z orientation apply.
         //calculate euler angle
         //8~15 iris
         //16 iris center
         //17 eyeball center
-        //x 위+ 아래-
-        //y 왼쪽+ 오른쪽-
-        //splash_icon all iris contours, apply root square
+        //test all iris contours, apply root square
 
         var ttheta = 0.0
         var tphi = 0.0
@@ -264,11 +256,8 @@ class EyeGazeFinder private constructor() {
 
         ttheta /= count
         tphi /= count
-//        if(count == 8)
 
-//        return Pair(Math.toDegrees(ttheta).toFloat() - headAngle.second/2, Math.toDegrees(tphi).toFloat() + headAngle.first/2)
         return Pair(Math.toDegrees(ttheta).toFloat(), Math.toDegrees(tphi).toFloat())
-
     }
 
     private fun processEye(photo:Bitmap, eyeLeft:Float, eyeTop : Float, width:Float, height:Float): ArrayList<Pair<Float, Float>>? {
