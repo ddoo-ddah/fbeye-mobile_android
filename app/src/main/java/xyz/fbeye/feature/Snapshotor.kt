@@ -55,6 +55,11 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private var timer: Timer? = null
     private var firstRotation = 0
     private var currentSize = 0
+    private var stateMap : Map<String, Runnable>? = null
+
+    fun setStateMap(map: Map<String, Runnable>){
+        this.stateMap = map
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
@@ -97,7 +102,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
                                     currentSize = barcodes.size
 
-
                                     if (barcodes.size > 0) {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             timerCheck(Client.getInstance()::write, "AUT", barcodes[0].displayValue.toString())
@@ -131,20 +135,30 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     private fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
         if (isFirst) {
+            if (Objects.nonNull(stateMap)){
+                stateMap!!["checking"]?.run()
+            }
             firstRotation = nextRotaion
             isFirst = false
             timer = timer(period = 1000) {
 //                if (currentSize <= 0) {
 //                    isFirst = true
 //                    times = 0
+//                    stateMap!!["checkFailed"]
 //                    this.cancel()
 //                }
                 if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
+                    if (Objects.nonNull(stateMap)){
+                        stateMap!!["checkFailed"]?.run()
+                    }
                     isFirst = true
                     times = 0
                     this.cancel()
                 }
                 if (times == 5) {
+                    if (Objects.nonNull(stateMap)){
+                        stateMap!!["checkSuccess"]?.run()
+                    }
                     write.invoke(qrIdentifier, data)
                     Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
                     isFirst = true
@@ -168,11 +182,12 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
             val singleExecutor = Executors.newSingleThreadExecutor()
 
+
             val analysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetResolution(Size(640, 480))
                     .build()
                     .also {
+                        //need 640*480 Image
                         it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
                             run {
                                 fc.result?.forEach { face ->

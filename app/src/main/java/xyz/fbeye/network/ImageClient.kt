@@ -18,7 +18,7 @@ class ImageClient {
 
     private var client: io.socket.client.Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
-    private var uri = URI("http://fbeye.sysbot32.com:3000")
+    private var uri = URI("www.fbeye.xyz")
 
     fun startClient() {
         executor.submit {
@@ -62,6 +62,7 @@ class ImageClient {
     fun read() {
         client!!.on("request-data") { checkForStarting(it) }
         client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap = false }
+        client!!.on("mobile-disconnect") { EyeGazeFinder.instance.requestBitmap = false }
     }
 
     private fun checkForStarting(it :Array<Any?>){

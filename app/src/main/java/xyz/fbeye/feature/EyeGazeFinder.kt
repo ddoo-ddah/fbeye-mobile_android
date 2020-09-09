@@ -190,11 +190,9 @@ class EyeGazeFinder private constructor() {
                     }
             }
 
-            //TODO 서버 요청이 있을 때만 생성하기
             if(requestBitmap){
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
                 processedBitmap?.let { bitmapWriter.invoke(it) }
-                requestBitmap = false
             }
         }
     }
@@ -267,7 +265,6 @@ class EyeGazeFinder private constructor() {
         ttheta /= count
         tphi /= count
 //        if(count == 8)
-        Log.e("degree", "t : ${Math.toDegrees(ttheta).toFloat()}, p : ${Math.toDegrees(tphi).toFloat()}")
 
 //        return Pair(Math.toDegrees(ttheta).toFloat() - headAngle.second/2, Math.toDegrees(tphi).toFloat() + headAngle.first/2)
         return Pair(Math.toDegrees(ttheta).toFloat(), Math.toDegrees(tphi).toFloat())

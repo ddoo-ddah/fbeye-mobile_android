@@ -6,37 +6,37 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
-import xyz.fbeye.R
-import xyz.fbeye.feature.Snapshotor
-import xyz.fbeye.network.Client
 import kotlinx.android.synthetic.main.qr_check_layout.*
 import org.json.JSONObject
+import xyz.fbeye.R
 import xyz.fbeye.feature.EyeGazeFinder
+import xyz.fbeye.feature.Snapshotor
+import xyz.fbeye.network.Client
 import java.util.*
+import kotlin.collections.HashMap
 
-@RequiresApi(Build.VERSION_CODES.R)
 class QrChecker : AppCompatActivity() {
 
     private lateinit var snapshotor: Snapshotor
     private var wakeLock: PowerManager.WakeLock? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.qr_check_layout)
 
         EyeGazeFinder.instance.setEyeDataWriter(Client.getInstance()::writeEyeData)
         //가끔 서버에 접속을 2번 혹은 그 이상 접속 해서 null check 함
-        if(Objects.isNull(savedInstanceState)){
+        if (Objects.isNull(savedInstanceState)) {
             Client.getInstance().startClient()
         }
 
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FBEye::QrWakeLock").apply {
-                acquire()
+                acquire(200 * 60 * 1000L /*200 minutes*/)
             }
         }
 
@@ -44,11 +44,20 @@ class QrChecker : AppCompatActivity() {
         checkOk()
     }
 
+    private fun changeQrState(): Map<String, Runnable> {
+        val map = HashMap<String, Runnable>()
+        map["notCheck"] = Runnable { runOnUiThread { qr_check_explanation.text = getString(R.string.notChecking_text) } }
+        map["checking"] = Runnable { runOnUiThread { qr_check_explanation.text = getString(R.string.checking_text) } }
+        map["checkSuccess"] = Runnable { runOnUiThread { qr_check_explanation.text = getString(R.string.checkSuccess_text) } }
+        map["checkFailed"] = Runnable { runOnUiThread { qr_check_explanation.text = getString(R.string.checkFailed_text) } }
+        return map
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun sendQrData() {
-        val display: Display? = this.display
-        val point = Point()
-        display!!.getRealSize(point)
+        val point = Point(qr_check_preview.width, qr_check_preview.height)
         snapshotor = Snapshotor(this, qr_check_preview, this as LifecycleOwner)
+        snapshotor.setStateMap(changeQrState())
         snapshotor.startCameraWithAnalysis(point)
     }
 
@@ -70,7 +79,7 @@ class QrChecker : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(Objects.nonNull(wakeLock)){
+        if (Objects.nonNull(wakeLock)) {
             wakeLock!!.release()
         }
         snapshotor.destroy()

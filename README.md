@@ -21,14 +21,35 @@
 #### Eye Gaze Estimation
  1. [Google Mlkit](https://developers.google.com/ml-kit/vision/face-detection) 라이브러리를 통해 얼굴 및 얼굴 특징점을 찾습니다.
  2. 얼굴 특징점 중 왼쪽 및 오른쪽 눈의 위치를 찾고, 이를 이미지로 추출합니다.
- 3. 미리 제작한 딥러닝 모델을 통해 Eye LandMark를 얻어냅니다. 
+ 3. 미리 제작한 딥러닝 모델을 통해 Eye Landmark를 얻어냅니다. 
  4. 3에서 얻은 Eye Landmark를 기반으로 3D 모델 기반 시선 추적을 통해 시선 방향 벡터를 구합니다.
  5. 시선 방향 벡터를 인증서버로 전송합니다.
-
-#### Eye Position Tracking on Display
- 1. 수험자 클라이언트와의 연동을 통해 스크린 특징점과 시선 방향을 맵핑합니다.
- 2. 연동이 완료 된 이후부터는 동차 좌표계 변환을 통해 입력되는 시선 방향을 스크린 좌표로 변환하여 수험자가 보고 있는 좌표를 얻어 냅니다.
  
+#### QR Code Scan
+ 1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 및 [CameraX](https://developer.android.com/training/camerax) 라이브러리를 사용하여
+ PC 클라이언트에서 보여주는 QR Code를 인식합니다.
+ 2. QR코드를 첫번째로 인식한 경우 5초간 대기 한 뒤에 서버로 전송합니다. 
+ 3. 2의 대기시간 중 휴대폰의 흔들림이 감지되면 핸드폰을 사용한 것으로 간주하여 다시 5초간 대기합니다.
+ 4. QR Code가 인증서버에서 확인된 경우에만 안드로이드 어플리케이션 및 PC 클라이언트를 정상적으로 사용 할 수 있습니다.
+    * 사실상의 로그인 기능입니다.
+ 5. 이후 시험을 응시하는 동안에도 주기적으로 변경되는 QR Code를 인식하여 서버로 전송합니다.
+ * QR Code에서 일부 데이터를 추출하여 이미지 서버와의 연결을 성립시킬때도 사용합니다.
+ 
+#### Processing Server Connection
+ 1. 보안을 위해 SSLSocket과 프로토콜 TLSv1.2를 사용해서 연결했습니다.
+ 2. 원활한 통신을 위해 [JSONOBJECT](https://developer.android.com/reference/org/json/JSONObject)을 사용해서 데이터를 주고 받습니다.
+
+#### Image Server Connection
+ 1. [Socket.IO](https://socket.io/blog/native-socket-io-and-android/)를 사용해서 연결했습니다.
+ 2. 이미지의 생성과 전송의 비용이 크기 때문에 서버로부터 요청이 들어오는 경우에만 이미지를 전송합니다.
+ 3. 이미지 서버에서 사용하기 편하도록 적절하게 리사이징후 base64 이미지로 변환합니다.
+ 4. stop명령이 오기 전까지 매 프레임마다 변환된 이미지를 계속해서 보냅니다.
+ 
+#### Pages
+ 1. 각각의 화면들은 [wakelock](https://developer.android.com/training/scheduling/wakelock)을 이용해서 실행 중에 꺼지지 않습니다.
+ 2. 사용자의 편의성을 위해 처음 카메라 조정을 제외하면 특별한 조작이 필요없습니다.
+ 3. 시험 도중엔 UI가 사라집니다.
+
 ## Requirements
  * Recommended Device : Samsung Galaxy S10 series or latest
  * Android : At least Oreo (API 22+)
