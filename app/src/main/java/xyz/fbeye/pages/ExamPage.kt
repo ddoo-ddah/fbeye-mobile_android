@@ -23,10 +23,11 @@ import xyz.fbeye.network.ImageClient
 import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ExamPage : AppCompatActivity() {
 
-    private var isRunning = true
+    private var isRunning :AtomicBoolean = AtomicBoolean(true)
     private var imageClient: ImageClient? = null
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(3)
@@ -34,6 +35,7 @@ class ExamPage : AppCompatActivity() {
     private var bitmap: Bitmap? = null
     private var qrData: JSONObject? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.exam_page_layout)
@@ -48,7 +50,7 @@ class ExamPage : AppCompatActivity() {
 
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                if (isRunning) {
+                if (isRunning.get()) {
                     Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
                     hideSystemUI()
                 } else {
@@ -89,7 +91,7 @@ class ExamPage : AppCompatActivity() {
     }
 
     private fun connectToImageServer() {
-        while (isRunning) {
+        while (isRunning.get()) {
             if (Objects.nonNull(qrData)) {
                 break
             }
@@ -101,7 +103,7 @@ class ExamPage : AppCompatActivity() {
     }
 
     private fun workWhileExam() {
-        while (isRunning) {
+        while (isRunning.get()) {
             val bytes = Client.getInstance().readData()
             val jsonData = JSONObject(String(bytes))
             workWithType(jsonData)
@@ -111,25 +113,34 @@ class ExamPage : AppCompatActivity() {
     private fun workWithType(json: JSONObject) {
         val data = json.get("data").toString()
         when (json.get("type")) {
-            "RES" -> finishExam(data)
-            "REQ" -> sendImage()
+//            "RES" -> finishExam(data)
+            "REQ" -> sendImage(data)
         }
     }
 
     private fun finishExam(isFinish: String) {
         if (isFinish == "endExam") {
-            isRunning = false
+            isRunning.set(false)
             runOnUiThread {
                 exam_page_finishTextView.visibility = View.VISIBLE
             }
         }
     }
 
-    private fun sendImage() {
-        if (Objects.isNull(imageClient)) {
-            return
+    private fun sendImage(data:String) {
+        if (data == "endExam") {
+            isRunning.set(false)
+            runOnUiThread {
+                exam_page_finishTextView.visibility = View.VISIBLE
+            }
         }
-        EyeGazeFinder.instance.requestBitmap = true
+        else{
+            if (Objects.isNull(imageClient)) {
+                return
+            }
+            EyeGazeFinder.instance.requestBitmap = true
+        }
+
     }
 
     private fun hideSystemUI() {
