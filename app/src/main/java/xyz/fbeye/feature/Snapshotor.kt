@@ -28,10 +28,12 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.Lock
 import kotlin.concurrent.timer
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
@@ -50,7 +52,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private var setQrData: KFunction1<JSONObject, Unit>? = null
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
-    private var isFirst = true
+    private var isFirst = AtomicBoolean(true)
     private var times = 0
     private var timer: Timer? = null
     private var firstRotation = 0
@@ -134,24 +136,26 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     }
 
     private fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
-        if (isFirst) {
+        if (isFirst.get()) {
             if (Objects.nonNull(stateMap)){
                 stateMap!!["checking"]?.run()
             }
             firstRotation = nextRotaion
-            isFirst = false
+            isFirst.set(false)
             timer = timer(period = 1000) {
 //                if (currentSize <= 0) {
-//                    isFirst = true
+//                    isFirst.set(true)
 //                    times = 0
-//                    stateMap!!["checkFailed"]
+//                    if (Objects.nonNull(stateMap)){
+//                        stateMap!!["checkFailed"]?.run()
+//                    }
 //                    this.cancel()
 //                }
                 if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
                     if (Objects.nonNull(stateMap)){
                         stateMap!!["checkFailed"]?.run()
                     }
-                    isFirst = true
+                    isFirst.set(true)
                     times = 0
                     this.cancel()
                 }
@@ -161,7 +165,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     }
                     write.invoke(qrIdentifier, data)
                     Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
-                    isFirst = true
+                    isFirst.set(true)
                     times = 0
                     this.cancel()
                 } else {
