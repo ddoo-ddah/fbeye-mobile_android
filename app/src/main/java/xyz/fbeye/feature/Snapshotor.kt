@@ -46,7 +46,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     }
 
     private val qrScanner = QrScanner()
-    private lateinit var orientationEventListener: OrientationEventListener
+    private var orientationEventListener: OrientationEventListener? = null
     private var setQrData: KFunction1<JSONObject, Unit>? = null
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
@@ -73,7 +73,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     }
                 }
 
-        orientationEventListener.enable()
+        orientationEventListener?.enable()
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
 
@@ -218,7 +218,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     }
 
     fun destroy() {
-        orientationEventListener.disable()
+        orientationEventListener?.disable()
     }
 
     private class FaceAnalyzer(private val listener: faceListener) : ImageAnalysis.Analyzer {
