@@ -28,8 +28,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility kotlin_version
+        targetCompatibility kotlin_version
     }
 }
 
@@ -63,9 +63,9 @@ dependencies {
 
     implementation ('org.tensorflow:tensorflow-lite:2.3.0')
     // This dependency adds the necessary TF op support.
-    implementation ('org.tensorflow:tensorflow-lite-select-tf-ops:0.0.0-nightly'){ changing = true }
+    implementation ('org.tensorflow:tensorflow-lite-select-tf-ops:0.0.0-nightly')
     implementation('org.tensorflow:tensorflow-lite-gpu:2.3.0')
-    implementation('org.tensorflow:tensorflow-lite-support:0.0.0-nightly') { changing = true }
+    implementation('org.tensorflow:tensorflow-lite-support:0.0.0-nightly')
 }
 repositories {
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
