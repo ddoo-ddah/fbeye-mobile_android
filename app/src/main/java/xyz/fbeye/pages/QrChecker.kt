@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner

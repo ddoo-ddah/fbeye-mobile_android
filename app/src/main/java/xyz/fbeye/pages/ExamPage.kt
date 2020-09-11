@@ -27,13 +27,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class ExamPage : AppCompatActivity() {
 
+    companion object{
+        var qrData: JSONObject? = null
+    }
+
     private var isRunning :AtomicBoolean = AtomicBoolean(true)
     private var imageClient: ImageClient? = null
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(3)
     private var wakeLock: PowerManager.WakeLock? = null
     private var bitmap: Bitmap? = null
-    private var qrData: JSONObject? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +68,6 @@ class ExamPage : AppCompatActivity() {
         val point = Point(exam_page_preivew.width, exam_page_preivew.height)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner)
         snapshotor.apply {
-            setQrCallback(this@ExamPage::setQrData)
         }.run {
             startCameraWithAnalysis(point)
             startFrontCamera(exam_page_preivew_front)
@@ -84,10 +86,6 @@ class ExamPage : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         executor.execute(this::connectToImageServer)
-    }
-
-    private fun setQrData(data: JSONObject) {
-        this.qrData = data
     }
 
     private fun connectToImageServer() {
@@ -109,6 +107,7 @@ class ExamPage : AppCompatActivity() {
             workWithType(jsonData)
         }
     }
+
 
     private fun workWithType(json: JSONObject) {
         val data = json.get("data").toString()
