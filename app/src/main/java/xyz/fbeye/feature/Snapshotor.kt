@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import org.json.JSONObject
+import xyz.fbeye.pages.ExamPage
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -49,7 +50,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
     private val qrScanner = QrScanner()
     private var orientationEventListener: OrientationEventListener? = null
-    private var setQrData: KFunction1<JSONObject, Unit>? = null
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
     private var isFirst = AtomicBoolean(true)
@@ -108,8 +108,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                         CoroutineScope(Dispatchers.IO).launch {
                                             timerCheck(Client.getInstance()::write, "AUT", barcodes[0].displayValue.toString())
 
-                                            if (Objects.nonNull(setQrData) && !isConveyed.get()) {
-                                                setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
+                                            if ( !isConveyed.get()) {
+                                                ExamPage.qrData = JSONObject(barcodes[0].displayValue.toString())
                                                 isConveyed.set(true)
                                             }
                                         }
@@ -215,10 +215,6 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
             }
 
         }, ContextCompat.getMainExecutor(context))
-    }
-
-    fun setQrCallback(f: KFunction1<JSONObject, Unit>) {
-        this.setQrData = f
     }
 
     fun destroy() {

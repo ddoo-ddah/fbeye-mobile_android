@@ -9,23 +9,25 @@ import io.socket.client.IO
 import io.socket.emitter.Emitter
 import org.json.JSONObject
 import xyz.fbeye.feature.EyeGazeFinder
+import xyz.fbeye.pages.ExamPage
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.function.Supplier
 
 class ImageClient {
 
     private var client: io.socket.client.Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
-    private var uri = URI("www.fbeye.xyz")
+    private var uri = URI("https://fbeye.xyz/")
 
     fun startClient() {
         executor.submit {
             client = IO.socket(uri)
             read()
             client!!.connect()
-            client!!.emit("mobile-welcome", "6b37ecfbf418")
+            client!!.emit("mobile-welcome", ExamPage.qrData!!.get("userCode"))
         }
     }
 
