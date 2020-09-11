@@ -4,9 +4,11 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Build
 import android.util.Base64
+import android.util.Log
 import androidx.annotation.RequiresApi
 import io.socket.client.IO
 import io.socket.emitter.Emitter
+import io.socket.engineio.client.transports.WebSocket
 import org.json.JSONObject
 import xyz.fbeye.feature.EyeGazeFinder
 import java.io.ByteArrayOutputStream
@@ -18,11 +20,13 @@ class ImageClient {
 
     private var client: io.socket.client.Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
-    private var uri = URI("www.fbeye.xyz")
+    private var uri = URI("https://fbeye.xyz")
 
     fun startClient() {
         executor.submit {
-            client = IO.socket(uri)
+            val option = IO.Options()
+            option.transports = Array(1){WebSocket.NAME}
+            client = IO.socket(uri,option)
             read()
             client!!.connect()
             client!!.emit("mobile-welcome", "6b37ecfbf418")
@@ -52,7 +56,6 @@ class ImageClient {
             val base64Data = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
 
             client!!.emit("eye", base64Data)
-
             resizedBitmap.recycle()
             byteArrayOutputStream.close()
             data.recycle()
@@ -61,14 +64,15 @@ class ImageClient {
 
     fun read() {
         client!!.on("request-data") { checkForStarting(it) }
-        client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap = false }
-        client!!.on("mobile-disconnect") { EyeGazeFinder.instance.requestBitmap = false }
+        client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap.set(false)}
+        client!!.on("mobile-disconnect") { EyeGazeFinder.instance.requestBitmap.set(false)}
     }
 
     private fun checkForStarting(it :Array<Any?>){
         val jsonData = JSONObject(it[0].toString())
+        Log.e("ImageProcess","enable")
         if (jsonData.get("type") == "RES" && Objects.nonNull(Client.getInstance().userCode) && jsonData.get("userCode") == Client.getInstance().userCode){
-            EyeGazeFinder.instance.requestBitmap = true
+            EyeGazeFinder.instance.requestBitmap.set(true)
         }
     }
 

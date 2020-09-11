@@ -22,6 +22,7 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.*
 import kotlin.reflect.KFunction1
 
@@ -29,11 +30,15 @@ class EyeGazeFinder private constructor() {
 
     private lateinit var interpreter : Interpreter
     private val gpuDelegate = GpuDelegate()
-    private val option = Interpreter.Options().addDelegate(gpuDelegate)
+    private val option = Interpreter.Options().also {
+        it.addDelegate(gpuDelegate)
+        it.setNumThreads(4)
+    }
+
 
     private var processedBitmap : Bitmap? = null
 
-    var requestBitmap = false
+    var requestBitmap : AtomicBoolean = AtomicBoolean(false)
 
     private lateinit var leftPositions :List<Pair<Float, Float>>
     private lateinit var rightPositions :List<Pair<Float, Float>>
@@ -51,7 +56,7 @@ class EyeGazeFinder private constructor() {
 
     fun init(fileDescriptor : AssetFileDescriptor){
         val channel = FileInputStream(fileDescriptor.fileDescriptor).channel
-        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength), option)
+        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength),option)
         OpenCVLoader.initDebug()
         executor = Executors.newCachedThreadPool()
         rotateMatrix.postRotate(180.0f)
@@ -185,7 +190,8 @@ class EyeGazeFinder private constructor() {
                     }
             }
 
-            if(requestBitmap){
+            if(requestBitmap.get()){
+                Log.e("ImageProcess","Process")
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
                 processedBitmap?.let { bitmapWriter.invoke(it) }
             }

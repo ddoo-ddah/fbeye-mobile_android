@@ -138,7 +138,7 @@ class ExamPage : AppCompatActivity() {
             if (Objects.isNull(imageClient)) {
                 return
             }
-            EyeGazeFinder.instance.requestBitmap = true
+            EyeGazeFinder.instance.requestBitmap.set(true)
         }
 
     }
