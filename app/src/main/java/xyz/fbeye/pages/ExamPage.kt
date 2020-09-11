@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
@@ -85,6 +86,7 @@ class ExamPage : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        Log.d("ExamPage", "call connect")
         executor.execute(this::connectToImageServer)
     }
 
@@ -94,10 +96,9 @@ class ExamPage : AppCompatActivity() {
                 break
             }
         }
-        // get uri from qrData and connect image server
         imageClient = ImageClient()
-        imageClient!!.startClient()
         EyeGazeFinder.instance.setBitmapWriter(imageClient!!::write)
+        imageClient!!.startClient()
     }
 
     private fun workWhileExam() {
@@ -108,38 +109,21 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
-
     private fun workWithType(json: JSONObject) {
         val data = json.get("data").toString()
         when (json.get("type")) {
-//            "RES" -> finishExam(data)
-            "REQ" -> sendImage(data)
+            "REQ" -> finishExam(data)
         }
     }
 
     private fun finishExam(isFinish: String) {
         if (isFinish == "endExam") {
             isRunning.set(false)
+            EyeGazeFinder.instance.requestBitmap.set(false)
             runOnUiThread {
                 exam_page_finishTextView.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun sendImage(data:String) {
-        if (data == "endExam") {
-            isRunning.set(false)
-            runOnUiThread {
-                exam_page_finishTextView.visibility = View.VISIBLE
-            }
-        }
-        else{
-            if (Objects.isNull(imageClient)) {
-                return
-            }
-            EyeGazeFinder.instance.requestBitmap.set(true)
-        }
-
     }
 
     private fun hideSystemUI() {

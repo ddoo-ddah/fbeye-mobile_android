@@ -252,6 +252,9 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                 result.addOnSuccessListener {
                     listener(result)
                     imageProxy.close()
+                }.addOnFailureListener{
+
+                    imageProxy.close()
                 }
             }
         }
