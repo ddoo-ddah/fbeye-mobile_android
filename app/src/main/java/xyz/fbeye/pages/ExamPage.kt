@@ -6,8 +6,6 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.util.Log
-import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -21,7 +19,6 @@ import xyz.fbeye.feature.EyeGazeFinder
 import xyz.fbeye.feature.Snapshotor
 import xyz.fbeye.network.Client
 import xyz.fbeye.network.ImageClient
-import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -44,9 +41,12 @@ class ExamPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.exam_page_layout)
 
+        initSnapshotor()
+
+        executor.execute(this::connectToImageServer)
+
         keepScreenOn()
 
-        initSnapshotor()
 
         hideSystemUI()
 
@@ -84,12 +84,6 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("ExamPage", "call connect")
-        executor.execute(this::connectToImageServer)
-    }
-
     private fun connectToImageServer() {
         while (isRunning.get()) {
             if (Objects.nonNull(qrData)) {
@@ -99,6 +93,7 @@ class ExamPage : AppCompatActivity() {
         imageClient = ImageClient()
         EyeGazeFinder.instance.setBitmapWriter(imageClient!!::write)
         imageClient!!.startClient()
+        snapshotor.setImageSend(imageClient!!::writeError)
     }
 
     private fun workWhileExam() {

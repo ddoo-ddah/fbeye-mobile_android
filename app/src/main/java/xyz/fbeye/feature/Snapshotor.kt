@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Point
 import android.hardware.SensorManager
 import android.os.Build
-import android.os.CountDownTimer
 import android.util.Log
 import android.util.Size
 import android.view.OrientationEventListener
@@ -28,15 +27,13 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import org.json.JSONObject
 import xyz.fbeye.pages.ExamPage
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.locks.Lock
 import kotlin.concurrent.timer
-import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction2
 
 typealias faceListener = (fc: Task<List<Face>>) -> Unit
@@ -58,6 +55,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     private var firstRotation = 0
     private var currentSize = 0
     private var stateMap : Map<String, Runnable>? = null
+    private var sendError: KFunction0<Unit>? = null
 
     fun setStateMap(map: Map<String, Runnable>){
         this.stateMap = map
@@ -192,13 +190,13 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     .build()
                     .also {
                         //need 640*480 Image
-                        it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
+                        it.setAnalyzer(singleExecutor, FaceAnalyzer({ fc ->
                             run {
                                 fc.result?.forEach { face ->
                                     frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.detect(face = face, photo = it1, degree = currentRotation) }
                                 }
                             }
-                        })
+                        }, sendError = sendError))
                     }
 
             val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
@@ -221,7 +219,11 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         orientationEventListener?.disable()
     }
 
-    private class FaceAnalyzer(private val listener: faceListener) : ImageAnalysis.Analyzer {
+    fun setImageSend(kFunction0: KFunction0<Unit>) {
+        sendError = kFunction0
+    }
+
+    private class FaceAnalyzer(private val listener: faceListener, private val sendError : KFunction0<Unit>?) : ImageAnalysis.Analyzer {
 
         lateinit var options: FaceDetectorOptions
         lateinit var detector: FaceDetector
@@ -250,10 +252,10 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                 val result = detector.process(image)
 
                 result.addOnSuccessListener {
+                    if(result.result?.size!! <1){
+                        sendError?.invoke()
+                    }
                     listener(result)
-                    imageProxy.close()
-                }.addOnFailureListener{
-
                     imageProxy.close()
                 }
             }

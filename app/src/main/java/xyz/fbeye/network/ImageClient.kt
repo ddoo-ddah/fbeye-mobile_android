@@ -36,6 +36,16 @@ class ImageClient {
         }
     }
 
+    fun writeError(){
+        if (Objects.isNull(client)) {
+            startClient()
+            return
+        }
+        executor.execute{
+            client!!.emit("cheat", "얼굴 인식 실패")
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun write(data: Bitmap?) {
         if (Objects.isNull(data)) {
