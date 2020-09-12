@@ -227,6 +227,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
         lateinit var options: FaceDetectorOptions
         lateinit var detector: FaceDetector
+        var undetectCount = 0
 
         var isInit: Boolean = false
 
@@ -253,6 +254,14 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
 
                 result.addOnSuccessListener {
                     if(result.result?.size!! <1){
+                        undetectCount += 1
+                    }
+                    else{
+                        undetectCount = 0
+                    }
+
+                    if(undetectCount > 20){
+                        undetectCount = 0
                         sendError?.invoke()
                     }
                     listener(result)
