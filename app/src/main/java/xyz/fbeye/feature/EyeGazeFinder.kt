@@ -54,6 +54,8 @@ class EyeGazeFinder private constructor() {
     private lateinit var bitmapWriter : KFunction1<@ParameterName(name = "bitmap") Bitmap, Unit>
     private lateinit var eyeWriter : KFunction1<MutableList<Float>, Unit>
 
+    private var upHeight = 0.0f
+
     fun init(fileDescriptor : AssetFileDescriptor){
         val channel = FileInputStream(fileDescriptor.fileDescriptor).channel
         interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength),option)
@@ -198,7 +200,7 @@ class EyeGazeFinder private constructor() {
             if(requestBitmap.get()){
                 Log.e("ImageProcess","Process")
                 processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize,boundBoxCenter)
-                processedBitmap?.let { bitmapWriter.invoke(it) }
+
             }
         }
     }
@@ -255,20 +257,30 @@ class EyeGazeFinder private constructor() {
 
         val preWidth = canvas.width
 
-        val upHeight : Float =
+        upHeight =
                 if (preWidth/2 < faceCenter.first){
                     faceCenter.first - preWidth/2.0f
                 }else{
                     preWidth/2.0f - faceCenter.first
                 }
 
-        val crop = Bitmap.createBitmap(bitmap,0, upHeight.roundToInt(), canvas.width, canvas.width)
+        sendBitmap(bitmap)
+
+    }
+
+
+    fun sendBitmap(bitmap : Bitmap){
+        if(!requestBitmap.get()) return
+
+        val crop = Bitmap.createBitmap(bitmap,0, upHeight.roundToInt(), bitmap.width, bitmap.width)
 
         val matrix = Matrix()
 
         matrix.postScale(480.toFloat() / crop.width, 480.toFloat() / crop.height)
 
         processedBitmap = Bitmap.createBitmap(crop, 0, 0, crop.width, crop.height, matrix, false)
+
+        processedBitmap?.let { bitmapWriter.invoke(it) }
     }
 
     private fun calculateEyeDegree(positions : List<Pair<Float, Float>>, radius : Float ): Pair<Float, Float> {

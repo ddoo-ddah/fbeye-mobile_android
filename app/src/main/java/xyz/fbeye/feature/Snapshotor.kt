@@ -192,6 +192,9 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                         //need 640*480 Image
                         it.setAnalyzer(singleExecutor, FaceAnalyzer({ fc ->
                             run {
+                                if(fc.result?.size!! < 1){
+                                    frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.sendBitmap(it1) }
+                                }
                                 fc.result?.forEach { face ->
                                     frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.detect(face = face, photo = it1, degree = currentRotation) }
                                 }
