@@ -23,7 +23,7 @@
 #### Face Detection
  1. [CameraX](https://developer.android.com/training/camerax) 라이브러리와 [Google Mlkit](https://developers.google.com/ml-kit/vision/face-detection) 라이브러리를 통해 얼굴 및 얼굴의 특징점을 찾습니다.
  2. Face Detection에 입력되는 이미지의 크기는 640 x 480이어야 하며, 출력되는 이미지 또한 640 x 480 입니다. 이는 원본이미지의 크기 및 비율과는 독립적입니다.
-  * CameraX 라이브러리를 사용하면 별다른 설정을 할 필요가 없습니다. 
+    * CameraX 라이브러리를 사용하면 별다른 설정을 할 필요가 없습니다. 
  3. 얼굴이 20프레임 이상 검출되지 않는 경우 자리이탈로 판단하여 서버에 로그를 전송합니다.
  4. 서버에서 이미지 요청이 오는경우 얼굴이 검출되지 않는 경우에도 전면 카메라 영상을 전송합니다.
 
