@@ -6,7 +6,6 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -20,27 +19,34 @@ import xyz.fbeye.feature.EyeGazeFinder
 import xyz.fbeye.feature.Snapshotor
 import xyz.fbeye.network.Client
 import xyz.fbeye.network.ImageClient
-import java.net.URI
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ExamPage : AppCompatActivity() {
 
-    private var isRunning = true
+    companion object{
+        var qrData: JSONObject? = null
+    }
+
+    private var isRunning :AtomicBoolean = AtomicBoolean(true)
     private var imageClient: ImageClient? = null
     private lateinit var snapshotor: Snapshotor
     private val executor = Executors.newFixedThreadPool(3)
     private var wakeLock: PowerManager.WakeLock? = null
     private var bitmap: Bitmap? = null
-    private var qrData: JSONObject? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.exam_page_layout)
 
+        initSnapshotor()
+
+        executor.execute(this::connectToImageServer)
+
         keepScreenOn()
 
-        initSnapshotor()
 
         hideSystemUI()
 
@@ -48,7 +54,7 @@ class ExamPage : AppCompatActivity() {
 
         window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                if (isRunning) {
+                if (isRunning.get()) {
                     Toast.makeText(this, "Do not touch screen ", Toast.LENGTH_SHORT).show()
                     hideSystemUI()
                 } else {
@@ -63,7 +69,6 @@ class ExamPage : AppCompatActivity() {
         val point = Point(exam_page_preivew.width, exam_page_preivew.height)
         snapshotor = Snapshotor(this as Context, exam_page_preivew, this as LifecycleOwner)
         snapshotor.apply {
-            setQrCallback(this@ExamPage::setQrData)
         }.run {
             startCameraWithAnalysis(point)
             startFrontCamera(exam_page_preivew_front)
@@ -79,29 +84,20 @@ class ExamPage : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        executor.execute(this::connectToImageServer)
-    }
-
-    private fun setQrData(data: JSONObject) {
-        this.qrData = data
-    }
-
     private fun connectToImageServer() {
-        while (isRunning) {
+        while (isRunning.get()) {
             if (Objects.nonNull(qrData)) {
                 break
             }
         }
-        // get uri from qrData and connect image server
         imageClient = ImageClient()
-        imageClient!!.startClient()
         EyeGazeFinder.instance.setBitmapWriter(imageClient!!::write)
+        imageClient!!.startClient()
+        snapshotor.setImageSend(imageClient!!::writeError)
     }
 
     private fun workWhileExam() {
-        while (isRunning) {
+        while (isRunning.get()) {
             val bytes = Client.getInstance().readData()
             val jsonData = JSONObject(String(bytes))
             workWithType(jsonData)
@@ -111,25 +107,18 @@ class ExamPage : AppCompatActivity() {
     private fun workWithType(json: JSONObject) {
         val data = json.get("data").toString()
         when (json.get("type")) {
-            "RES" -> finishExam(data)
-            "REQ" -> sendImage()
+            "REQ" -> finishExam(data)
         }
     }
 
     private fun finishExam(isFinish: String) {
         if (isFinish == "endExam") {
-            isRunning = false
+            isRunning.set(false)
+            EyeGazeFinder.instance.requestBitmap.set(false)
             runOnUiThread {
                 exam_page_finishTextView.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun sendImage() {
-        if (Objects.isNull(imageClient)) {
-            return
-        }
-        EyeGazeFinder.instance.requestBitmap = true
     }
 
     private fun hideSystemUI() {

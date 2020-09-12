@@ -22,21 +22,23 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.*
 import kotlin.reflect.KFunction1
 
 class EyeGazeFinder private constructor() {
 
-    //make destroy
-    //얼굴인식 똑바로 되는지 체크
-
     private lateinit var interpreter : Interpreter
     private val gpuDelegate = GpuDelegate()
-    private val option = Interpreter.Options().addDelegate(gpuDelegate)
+    private val option = Interpreter.Options().also {
+        it.addDelegate(gpuDelegate)
+        it.setNumThreads(4)
+    }
+
 
     private var processedBitmap : Bitmap? = null
 
-    var requestBitmap = false
+    var requestBitmap : AtomicBoolean = AtomicBoolean(false)
 
     private lateinit var leftPositions :List<Pair<Float, Float>>
     private lateinit var rightPositions :List<Pair<Float, Float>>
@@ -52,9 +54,11 @@ class EyeGazeFinder private constructor() {
     private lateinit var bitmapWriter : KFunction1<@ParameterName(name = "bitmap") Bitmap, Unit>
     private lateinit var eyeWriter : KFunction1<MutableList<Float>, Unit>
 
+    private var upHeight = 0.0f
+
     fun init(fileDescriptor : AssetFileDescriptor){
         val channel = FileInputStream(fileDescriptor.fileDescriptor).channel
-        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength), option)
+        interpreter = Interpreter(channel.map(FileChannel.MapMode.READ_ONLY,fileDescriptor.startOffset, fileDescriptor.declaredLength),option)
         OpenCVLoader.initDebug()
         executor = Executors.newCachedThreadPool()
         rotateMatrix.postRotate(180.0f)
@@ -89,6 +93,8 @@ class EyeGazeFinder private constructor() {
                 (photo1.height.toFloat() / imageRatio - photo1.width.toFloat()) / 2
         }
 
+
+
         var leftEyeLeft = Float.MAX_VALUE
         var leftEyeTop = Float.MAX_VALUE
         var leftEyeRight = 0f
@@ -98,6 +104,9 @@ class EyeGazeFinder private constructor() {
         var rightEyeTop = Float.MAX_VALUE
         var rightEyeRight = 0f
         var rightEyeBottom = 0f
+
+        val boundBoxCenter = Pair(face.boundingBox.exactCenterX() * scaleFactor - scaleWidthOffset,
+                face.boundingBox.exactCenterY() * scaleFactor - scaleHeightOffset)
 
         face.allContours.forEach {
             kotlin.run {
@@ -163,8 +172,6 @@ class EyeGazeFinder private constructor() {
 
             val leftEyeDegree = calculateEyeDegree(leftPositions, leftEyeBallRadius)
             val rightEyeDegree = calculateEyeDegree(rightPositions, rightEyeBallRadius)
-//            Log.e("eyeL",leftEyeDegree.toString())
-//            Log.e("eyeR",rightEyeDegree.toString())
 
             val leftSize = Rect()
             leftSize.set(leftEyeLeft.toInt(),
@@ -190,14 +197,15 @@ class EyeGazeFinder private constructor() {
                     }
             }
 
-            if(requestBitmap){
-                processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize)
-                processedBitmap?.let { bitmapWriter.invoke(it) }
+            if(requestBitmap.get()){
+                Log.e("ImageProcess","Process")
+                processBitmap(photo, leftPositions, rightPositions, leftSize, rightSize,boundBoxCenter)
+
             }
         }
     }
 
-    private fun processBitmap(bitmap: Bitmap, leftPositions: List<Pair<Float, Float>> , rightPositions: List<Pair<Float, Float>>, leftSize : Rect, rightSize : Rect ){
+    private fun processBitmap(bitmap: Bitmap, leftPositions: List<Pair<Float, Float>> , rightPositions: List<Pair<Float, Float>>, leftSize : Rect, rightSize : Rect , faceCenter : Pair<Float,Float>){
 
         val canvas = Canvas(bitmap)
 
@@ -214,34 +222,72 @@ class EyeGazeFinder private constructor() {
         val paint2 = Paint()
         paint2.color = Color.GREEN
 
+        val leftIrisCenterX = leftPositions[16].first * leftWidthRatio + leftSize.left
+        val leftIrisCenterY = leftPositions[16].second * leftHeightRatio + leftSize.top
+        val leftEyeBallCenterX = leftPositions[17].first * leftWidthRatio + leftSize.left
+        val leftEyeBallCenterY = leftPositions[17].second * leftHeightRatio + leftSize.top
+
+        val rightIrisCenterX = rightPositions[16].first * rightWidthRatio + rightSize.left
+        val rightIrisCenterY = rightPositions[16].second * rightHeightRatio + rightSize.top
+        val rightEyeBallCenterX = rightPositions[17].first * rightWidthRatio + rightSize.left
+        val rightEyeBallCenterY = rightPositions[17].second * rightHeightRatio + rightSize.top
+
+        val leftDrawX = (leftIrisCenterX - leftEyeBallCenterX)*1.2f
+        val leftDrawY = (leftIrisCenterY - leftEyeBallCenterY)*1.2f
+        val rightDrawX = (rightIrisCenterX - rightEyeBallCenterX)*1.2f
+        val rightDrawY = (rightIrisCenterY - rightEyeBallCenterY)*1.2f
+
         for (i in 8 until 18){
 
-            canvas.drawCircle(leftPositions[i].first * leftWidthRatio + leftSize.left,leftPositions[i].second * leftHeightRatio + leftSize.top,5.0f,paint)
-            canvas.drawCircle(rightPositions[i].first * rightWidthRatio + rightSize.left, rightPositions[i].second * rightHeightRatio+rightSize.top,5.0f, paint)
+            val leftX = leftPositions[i].first * leftWidthRatio + leftSize.left
+            val leftY = leftPositions[i].second * leftHeightRatio + leftSize.top
+
+            val rightX = rightPositions[i].first * rightWidthRatio + rightSize.left
+            val rightY = rightPositions[i].second * rightHeightRatio + rightSize.top
+
+            canvas.drawCircle(leftX, leftY,5.0f,paint)
+            canvas.drawCircle(rightX, rightY,5.0f, paint)
+
+            canvas.drawLine(leftX, leftY, leftIrisCenterX + leftDrawX, leftEyeBallCenterY + leftDrawY, paint2)
+            canvas.drawLine(rightX, rightY, rightIrisCenterX + rightDrawX, rightEyeBallCenterY + rightDrawY, paint2)
+
         }
 
-        val irisCenterX = leftPositions[16].first * leftWidthRatio + leftSize.left
-        val irisCenterY = leftPositions[16].second * leftHeightRatio + leftSize.top
 
-        val eyeBallCenterX = leftPositions[17].first * leftWidthRatio + leftSize.left
-        val eyeBallCenterY = leftPositions[17].second * leftHeightRatio + leftSize.top
 
-        val drawX = (irisCenterX - eyeBallCenterX)*1.2f
-        val drawY = (irisCenterY - eyeBallCenterY)*1.2f
+        val preWidth = canvas.width
 
-        canvas.drawLine(eyeBallCenterX, eyeBallCenterY, eyeBallCenterX + drawX, eyeBallCenterY + drawY, paint2)
+        upHeight =
+                if (preWidth/2 < faceCenter.first){
+                    faceCenter.first - preWidth/2.0f
+                }else{
+                    preWidth/2.0f - faceCenter.first
+                }
 
-        processedBitmap = bitmap
+        sendBitmap(bitmap)
+
+    }
+
+
+    fun sendBitmap(bitmap : Bitmap){
+        if(!requestBitmap.get()) return
+
+        val crop = Bitmap.createBitmap(bitmap,0, upHeight.roundToInt(), bitmap.width, bitmap.width)
+
+        val matrix = Matrix()
+
+        matrix.postScale(480.toFloat() / crop.width, 480.toFloat() / crop.height)
+
+        processedBitmap = Bitmap.createBitmap(crop, 0, 0, crop.width, crop.height, matrix, false)
+
+        processedBitmap?.let { bitmapWriter.invoke(it) }
     }
 
     private fun calculateEyeDegree(positions : List<Pair<Float, Float>>, radius : Float ): Pair<Float, Float> {
-        //Head z orientation apply.
         //calculate euler angle
         //8~15 iris
         //16 iris center
         //17 eyeball center
-        //x 위+ 아래-
-        //y 왼쪽+ 오른쪽-
         //test all iris contours, apply root square
 
         var ttheta = 0.0
@@ -264,11 +310,8 @@ class EyeGazeFinder private constructor() {
 
         ttheta /= count
         tphi /= count
-//        if(count == 8)
 
-//        return Pair(Math.toDegrees(ttheta).toFloat() - headAngle.second/2, Math.toDegrees(tphi).toFloat() + headAngle.first/2)
         return Pair(Math.toDegrees(ttheta).toFloat(), Math.toDegrees(tphi).toFloat())
-
     }
 
     private fun processEye(photo:Bitmap, eyeLeft:Float, eyeTop : Float, width:Float, height:Float): ArrayList<Pair<Float, Float>>? {

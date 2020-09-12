@@ -6,8 +6,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-    
+<!--    #410FF8-->
     <style name="AppTheme.Splash" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name= "android:windowBackground">@drawable/splash_drawable</item>
+        <item name= "android:windowBackground" >#410FF8</item>
+        <item name="android:background">@drawable/splash_icon</item>
     </style>
 </resources>

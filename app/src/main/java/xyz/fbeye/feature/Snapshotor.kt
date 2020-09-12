@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Point
 import android.hardware.SensorManager
 import android.os.Build
-import android.os.CountDownTimer
 import android.util.Log
 import android.util.Size
 import android.view.OrientationEventListener
@@ -29,11 +28,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import xyz.fbeye.pages.ExamPage
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.timer
-import kotlin.reflect.KFunction1
+import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction2
 
 typealias faceListener = (fc: Task<List<Face>>) -> Unit
@@ -46,16 +46,16 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     }
 
     private val qrScanner = QrScanner()
-    private lateinit var orientationEventListener: OrientationEventListener
-    private var setQrData: KFunction1<JSONObject, Unit>? = null
+    private var orientationEventListener: OrientationEventListener? = null
     private var isConveyed = AtomicBoolean(false)
     private var nextRotaion = 0
-    private var isFirst = true
+    private var isFirst = AtomicBoolean(true)
     private var times = 0
     private var timer: Timer? = null
     private var firstRotation = 0
     private var currentSize = 0
     private var stateMap : Map<String, Runnable>? = null
+    private var sendError: KFunction0<Unit>? = null
 
     fun setStateMap(map: Map<String, Runnable>){
         this.stateMap = map
@@ -73,7 +73,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     }
                 }
 
-        orientationEventListener.enable()
+        orientationEventListener?.enable()
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
 
@@ -106,8 +106,8 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                                         CoroutineScope(Dispatchers.IO).launch {
                                             timerCheck(Client.getInstance()::write, "AUT", barcodes[0].displayValue.toString())
 
-                                            if (Objects.nonNull(setQrData) && !isConveyed.get()) {
-                                                setQrData!!.invoke(JSONObject(barcodes[0].displayValue.toString()))
+                                            if ( !isConveyed.get()) {
+                                                ExamPage.qrData = JSONObject(barcodes[0].displayValue.toString())
                                                 isConveyed.set(true)
                                             }
                                         }
@@ -134,24 +134,26 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
     }
 
     private fun timerCheck(write: KFunction2<String, String, Unit>, qrIdentifier: String, data: String) {
-        if (isFirst) {
+        if (isFirst.get()) {
             if (Objects.nonNull(stateMap)){
                 stateMap!!["checking"]?.run()
             }
             firstRotation = nextRotaion
-            isFirst = false
+            isFirst.set(false)
             timer = timer(period = 1000) {
 //                if (currentSize <= 0) {
-//                    isFirst = true
+//                    isFirst.set(true)
 //                    times = 0
-//                    stateMap!!["checkFailed"]
+//                    if (Objects.nonNull(stateMap)){
+//                        stateMap!!["checkFailed"]?.run()
+//                    }
 //                    this.cancel()
 //                }
                 if (firstRotation > nextRotaion + 3 || firstRotation < nextRotaion - 3) {
                     if (Objects.nonNull(stateMap)){
                         stateMap!!["checkFailed"]?.run()
                     }
-                    isFirst = true
+                    isFirst.set(true)
                     times = 0
                     this.cancel()
                 }
@@ -161,7 +163,7 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     }
                     write.invoke(qrIdentifier, data)
                     Client.getInstance().userCode = JSONObject(data).get("userCode").toString()
-                    isFirst = true
+                    isFirst.set(true)
                     times = 0
                     this.cancel()
                 } else {
@@ -188,13 +190,16 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                     .build()
                     .also {
                         //need 640*480 Image
-                        it.setAnalyzer(singleExecutor, FaceAnalyzer { fc ->
+                        it.setAnalyzer(singleExecutor, FaceAnalyzer({ fc ->
                             run {
+                                if(fc.result?.size!! < 1){
+                                    frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.sendBitmap(it1) }
+                                }
                                 fc.result?.forEach { face ->
                                     frontPreview.bitmap?.let { it1 -> EyeGazeFinder.instance.detect(face = face, photo = it1, degree = currentRotation) }
                                 }
                             }
-                        })
+                        }, sendError = sendError))
                     }
 
             val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
@@ -213,18 +218,19 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
         }, ContextCompat.getMainExecutor(context))
     }
 
-    fun setQrCallback(f: KFunction1<JSONObject, Unit>) {
-        this.setQrData = f
-    }
-
     fun destroy() {
-        orientationEventListener.disable()
+        orientationEventListener?.disable()
     }
 
-    private class FaceAnalyzer(private val listener: faceListener) : ImageAnalysis.Analyzer {
+    fun setImageSend(kFunction0: KFunction0<Unit>) {
+        sendError = kFunction0
+    }
+
+    private class FaceAnalyzer(private val listener: faceListener, private val sendError : KFunction0<Unit>?) : ImageAnalysis.Analyzer {
 
         lateinit var options: FaceDetectorOptions
         lateinit var detector: FaceDetector
+        var undetectCount = 0
 
         var isInit: Boolean = false
 
@@ -250,6 +256,17 @@ class Snapshotor(private val context: Context, private val previewView: PreviewV
                 val result = detector.process(image)
 
                 result.addOnSuccessListener {
+                    if(result.result?.size!! <1){
+                        undetectCount += 1
+                    }
+                    else{
+                        undetectCount = 0
+                    }
+
+                    if(undetectCount > 20){
+                        undetectCount = 0
+                        sendError?.invoke()
+                    }
                     listener(result)
                     imageProxy.close()
                 }

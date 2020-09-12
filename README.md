@@ -7,6 +7,8 @@
  * 적외선 카메라 등의 특수한 장치 없이 스마트폰으로 시선 추적을 할 수 있습니다.
  * [인증서버](https://github.com/ddoo-ddah/fbeye-processing-server) 및 [관리자용 웹페이지](https://github.com/ddoo-ddah/fbeye-web-server), [수험자용 클라이언트](https://github.com/ddoo-ddah/fbeye-desktop_windows) 와 연동하여 사용할 수 있습니다.
 
+ * 시선추적 정확도의 평가는 아직 완료되지 않았습니다.
+ 
 ## How it works?
 #### Eye LandMark Detection
  1. 이 기능은 [Learning to Find Eye Region Landmarks for Remote Gaze Estimation in Unconstrained Settings](https://ait.ethz.ch/projects/2018/landmarks-gaze/) 을 인용하여 제작되었습니다. 상세 모델 구현은 논문을 참고하시기 바랍니다.
@@ -14,16 +16,27 @@
  3. 입력크기는 108\*180\*1 이며 출력크기는 36\*60\*18 입니다.
  4. HeatMap 형태로 출력되며, 각 영역에 해당하는 값중 최대치를 찾아 좌표로 변환하면 사용 할 수 있습니다.
  
- * 모델은 데스크탑에서 학습되었으며 충분히 학습 완료된 모델을 안드로이드에서 사용 할 수 있도록 변환하였습니다.
- * 변환된 모델은 [Tensorflow-lite](https://www.tensorflow.org/lite/) 라이브러리를 사용하여 동작시킬수 있습니다. 하지만 추가적인 학습은 불가능 합니다.
+ * 모델은 데스크탑에서 학습되었으며 충분히 학습된 모델을 안드로이드에서 사용 할 수 있도록 변환하였습니다.
+ * 변환된 모델은 추가적인 학습이 불가능하며, [Tensorflow-lite](https://www.tensorflow.org/lite/) 라이브러리를 사용하여 동작시킬수 있습니다.
  * 학습에 사용된 데이터셋은 420만개 가량입니다.
- 
+
+#### Face Detection
+ 1. [CameraX](https://developer.android.com/training/camerax) 라이브러리와 [Google Mlkit](https://developers.google.com/ml-kit/vision/face-detection) 라이브러리를 통해 얼굴 및 얼굴의 특징점을 찾습니다.
+ 2. Face Detection에 입력되는 이미지의 크기는 640 x 480이어야 하며, 출력되는 이미지 또한 640 x 480 입니다. 이는 원본이미지의 크기 및 비율과는 독립적입니다.
+  * CameraX 라이브러리를 사용하면 별다른 설정을 할 필요가 없습니다. 
+ 3. 얼굴이 20프레임 이상 검출되지 않는 경우 자리이탈로 판단하여 서버에 로그를 전송합니다.
+ 4. 서버에서 이미지 요청이 오는경우 얼굴이 검출되지 않는 경우에도 전면 카메라 영상을 전송합니다.
+
 #### Eye Gaze Estimation
- 1. [Google Mlkit](https://developers.google.com/ml-kit/vision/face-detection) 라이브러리를 통해 얼굴 및 얼굴 특징점을 찾습니다.
+ 1. 위의 Face Detection으로 얻어낸 얼굴 특징점을 사용합니다.
  2. 얼굴 특징점 중 왼쪽 및 오른쪽 눈의 위치를 찾고, 이를 이미지로 추출합니다.
- 3. 미리 제작한 딥러닝 모델을 통해 Eye Landmark를 얻어냅니다. 
- 4. 3에서 얻은 Eye Landmark를 기반으로 3D 모델 기반 시선 추적을 통해 시선 방향 벡터를 구합니다.
- 5. 시선 방향 벡터를 인증서버로 전송합니다.
+ 3. [Tensorflow-lite](https://www.tensorflow.org/lite/) 라이브러리로 Eye LandMark Detection 모델을 작동시켜 2의 이미지에서 Eye Landmark를 얻어냅니다. 
+ 4. 3에서 얻은 Eye Landmark를 기반으로 시선 방향 값을 구합니다.
+ 5. 시선 방향 값을 인증서버로 전송합니다.
+ 6. 서버에서 이미지 전송요청이 오는경우, 눈동자의 테두리와 시선방향이 그려진 이미지를 생성하여 서버로 전송합니다.
+ 
+ * 검출 속도 향상을 위해 GPU 가속을 사용합니다.
+ * 기기에 따라 GPU 가속을 사용할 수 없는 경우도 있습니다. 이 경우 관련 옵션을 제거해 주시기 바랍니다.
  
 #### QR Code Scan
  1. [Google Mlkit](https://developers.google.com/ml-kit/vision/barcode-scanning) 및 [CameraX](https://developer.android.com/training/camerax) 라이브러리를 사용하여
@@ -51,11 +64,11 @@
  3. 시험 도중엔 UI가 사라집니다.
 
 ## Requirements
- * Recommended Device : Samsung Galaxy S10 series or latest
- * Android : At least Oreo (API 22+)
+ * Recommended Device : Samsung Galaxy S10 series or later
+ * Android : Oreo or later (API 22+)
  * ABI : armeabi-v7a or arm64-v8a
 
- #### Used APIs
+ #### Dependencies
  
    * [kotlinx-coroutines](https://developer.android.com/kotlin/coroutines)
    * [Google MLkit barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning)

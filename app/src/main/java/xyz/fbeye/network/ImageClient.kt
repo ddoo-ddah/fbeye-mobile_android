@@ -4,11 +4,14 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Build
 import android.util.Base64
+import android.util.Log
 import androidx.annotation.RequiresApi
 import io.socket.client.IO
-import io.socket.emitter.Emitter
+import io.socket.client.Socket
+import io.socket.engineio.client.transports.WebSocket
 import org.json.JSONObject
 import xyz.fbeye.feature.EyeGazeFinder
+import xyz.fbeye.pages.ExamPage
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
@@ -16,16 +19,30 @@ import java.util.concurrent.Executors
 
 class ImageClient {
 
-    private var client: io.socket.client.Socket? = null
+    private var client: Socket? = null
     private val executor = Executors.newFixedThreadPool(3)
-    private var uri = URI("www.fbeye.xyz")
 
     fun startClient() {
         executor.submit {
-            client = IO.socket(uri)
+            val option = IO.Options()
+            option.forceNew = false
+            option.transports = Array(1) { WebSocket.NAME }
+            client = IO.socket("https://fbeye.xyz", option)
+            client!!.on(Socket.EVENT_CONNECT) {
+                client!!.emit("mobile-welcome", ExamPage.qrData!!.get("userCode"))
+            }
             read()
             client!!.connect()
-            client!!.emit("mobile-welcome", "6b37ecfbf418")
+        }
+    }
+
+    fun writeError(){
+        if (Objects.isNull(client)) {
+            startClient()
+            return
+        }
+        executor.execute{
+            client!!.emit("cheat", "얼굴 인식 실패")
         }
     }
 
@@ -41,19 +58,14 @@ class ImageClient {
         }
         executor.execute {
 
-            val matrix = Matrix()
-            matrix.postScale(720.toFloat() / data!!.width, 720.toFloat() / data.height)
-
-            val resizedBitmap = Bitmap.createBitmap(data, 0, 0, data.width, data.height, matrix, false)
             val byteArrayOutputStream = ByteArrayOutputStream()
 
-            resizedBitmap!!.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+            data!!.compress(Bitmap.CompressFormat.PNG, 95, byteArrayOutputStream)
 
             val base64Data = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)
 
             client!!.emit("eye", base64Data)
 
-            resizedBitmap.recycle()
             byteArrayOutputStream.close()
             data.recycle()
         }
@@ -61,14 +73,14 @@ class ImageClient {
 
     fun read() {
         client!!.on("request-data") { checkForStarting(it) }
-        client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap = false }
-        client!!.on("mobile-disconnect") { EyeGazeFinder.instance.requestBitmap = false }
+        client!!.on("stop-data") { EyeGazeFinder.instance.requestBitmap.set(false) }
+        client!!.on("mobile-disconnect") { EyeGazeFinder.instance.requestBitmap.set(false) }
     }
 
-    private fun checkForStarting(it :Array<Any?>){
+    private fun checkForStarting(it: Array<Any?>) {
         val jsonData = JSONObject(it[0].toString())
-        if (jsonData.get("type") == "RES" && Objects.nonNull(Client.getInstance().userCode) && jsonData.get("userCode") == Client.getInstance().userCode){
-            EyeGazeFinder.instance.requestBitmap = true
+        if (jsonData.get("type") == "RES" && Objects.nonNull(Client.getInstance().userCode) && jsonData.get("userCode") == Client.getInstance().userCode) {
+            EyeGazeFinder.instance.requestBitmap.set(true)
         }
     }
 
