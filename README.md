@@ -77,4 +77,15 @@
    * [Socket.io](https://github.com/socketio/socket.io-client-java)
    * [OpenCV](https://github.com/quickbirdstudios/opencv-android)
    * [Tensorflow-lite](https://www.tensorflow.org/lite/)
- 
+
+### Reference
+> @inproceedings{Park2018ETRA,
+	author = {Park, Seonwook and Zhang, Xucong and Bulling, Andreas and Hilliges, Otmar},
+	title = {Learning to Find Eye Region Landmarks for Remote Gaze Estimation in Unconstrained Settings},
+	booktitle = {ACM Symposium on Eye Tracking Research and Applications (ETRA)},
+	series = {ETRA '18},
+	year = {2018},
+	location = {Warsaw, Poland},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+}
